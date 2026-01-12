@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Plus, ChevronRight, X } from 'lucide-react'
+import { Plus, ChevronRight, X } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 
 const DAYS = [
@@ -19,8 +19,8 @@ const DAYS = [
 ]
 
 const CALL_TYPES = [
-  { id: 'normal', label: '일반 AI 전화', color: '#22c55e' },
-  { id: 'roleplay', label: '롤플레잉', color: '#6366f1' },
+  { id: 'normal', label: '일반 AI 전화', color: '#22c55e', bgColor: '#dcfce7' },
+  { id: 'roleplay', label: '롤플레잉', color: '#3b82f6', bgColor: '#dbeafe' },
 ]
 
 function ScheduleSettings() {
@@ -90,11 +90,10 @@ function ScheduleSettings() {
     <div className="schedule-settings-page">
       {/* 헤더 */}
       <header className="page-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          <ChevronLeft size={28} color="#1a1a1a" />
+        <h1>일정 설정</h1>
+        <button className="close-btn" onClick={() => navigate(-1)}>
+          <X size={24} color="#1a1a1a" />
         </button>
-        <h1>일정</h1>
-        <div className="header-spacer" />
       </header>
 
       {/* 설명 */}
@@ -125,7 +124,7 @@ function ScheduleSettings() {
                     <span
                       className="type-badge"
                       style={{
-                        backgroundColor: typeInfo?.color + '15',
+                        backgroundColor: typeInfo?.bgColor,
                         color: typeInfo?.color
                       }}
                     >
@@ -207,16 +206,8 @@ function ScheduleSettings() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
+          padding: 16px 20px;
           background: white;
-          border-bottom: 1px solid #e8e8e8;
-        }
-
-        .back-btn {
-          background: none;
-          padding: 4px;
-          display: flex;
-          align-items: center;
         }
 
         .page-header h1 {
@@ -225,8 +216,11 @@ function ScheduleSettings() {
           color: #1a1a1a;
         }
 
-        .header-spacer {
-          width: 36px;
+        .close-btn {
+          background: none;
+          padding: 4px;
+          display: flex;
+          align-items: center;
         }
 
         .page-desc {
@@ -300,11 +294,14 @@ function ScheduleSettings() {
         .timezone-info {
           padding: 16px 20px;
           text-align: center;
+          background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
+          margin-top: auto;
         }
 
         .timezone-info span {
-          font-size: 13px;
-          color: #888;
+          font-size: 14px;
+          color: #4b5563;
+          font-weight: 500;
         }
 
         /* 모달 */

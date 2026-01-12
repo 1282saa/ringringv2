@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Phone, ChevronLeft, ChevronRight, Menu, Flame, Home as HomeIcon, Monitor, Bot, BarChart2, User, Check } from 'lucide-react'
 import { loadMockData } from '../data/mockCallHistory'
 
 function Home() {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('call') // call, settings, history
+  const location = useLocation()
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'call') // call, settings, history
   const [callHistory, setCallHistory] = useState([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [filterAnalysisOnly, setFilterAnalysisOnly] = useState(false)
@@ -34,6 +35,13 @@ function Home() {
 
   // 성격 태그
   const personalityTags = ['밝은', '활기찬']
+
+  // 네비게이션 상태로 탭 변경
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab)
+    }
+  }, [location.state])
 
   useEffect(() => {
     // 통화 기록 로드
@@ -328,23 +336,25 @@ function Home() {
         .tabs {
           display: flex;
           background: white;
-          border-bottom: 1px solid #e5e7eb;
+          border-bottom: 1px solid #e8e8e8;
           padding: 0 20px;
+          gap: 24px;
         }
 
         .tab {
-          padding: 16px 20px;
+          padding: 14px 0;
           font-size: 15px;
           font-weight: 500;
-          color: #9ca3af;
+          color: #888;
           background: none;
           border-bottom: 2px solid transparent;
-          margin-bottom: -1px;
+          transition: all 0.2s;
         }
 
         .tab.active {
-          color: #1f2937;
-          border-bottom-color: #1f2937;
+          color: #1a1a1a;
+          font-weight: 600;
+          border-bottom-color: #1a1a1a;
         }
 
         .main-content {

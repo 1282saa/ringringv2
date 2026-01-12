@@ -9,21 +9,17 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, X, Check, Home, Users, Bot, Phone, Trophy, User } from 'lucide-react'
+import { ChevronRight, X, Check, Home, Monitor, Bot, Phone, BarChart2, User, Flame, Menu } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 import { TUTORS } from '../constants'
 
 function Settings() {
   const navigate = useNavigate()
 
-  // 탭 상태
-  const [activeTab, setActiveTab] = useState('settings')
-
   // 설정 상태
   const [userName, setUserName] = useState('')
   const [showNameModal, setShowNameModal] = useState(false)
   const [tempName, setTempName] = useState('')
-  const [roleplayAlert, setRoleplayAlert] = useState(true)
   const [videoReviewAlert, setVideoReviewAlert] = useState(true)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
@@ -47,9 +43,7 @@ function Settings() {
     setUserName(savedName)
 
     // 알림 설정
-    const savedRoleplayAlert = getFromStorage('roleplayAlert', true)
     const savedVideoReviewAlert = getFromStorage('videoReviewAlert', true)
-    setRoleplayAlert(savedRoleplayAlert)
     setVideoReviewAlert(savedVideoReviewAlert)
 
     // 일정 카운트 (요일별 일정 합계)
@@ -81,13 +75,6 @@ function Settings() {
   }
 
   // 토글 핸들러
-  const handleRoleplayToggle = () => {
-    const newValue = !roleplayAlert
-    setRoleplayAlert(newValue)
-    setToStorage('roleplayAlert', newValue)
-    displayToast(newValue ? '알림이 켜졌습니다' : '알림이 꺼졌습니다')
-  }
-
   const handleVideoReviewToggle = () => {
     const newValue = !videoReviewAlert
     setVideoReviewAlert(newValue)
@@ -100,28 +87,32 @@ function Settings() {
       {/* 상단 헤더 */}
       <header className="main-header">
         <h1>AI 전화</h1>
-        <button className="close-btn" onClick={() => navigate('/')}>
-          <X size={24} color="#9ca3af" />
-        </button>
+        <div className="header-icons">
+          <button className="icon-btn">
+            <Flame size={22} color="#22d3ee" fill="#22d3ee" />
+          </button>
+          <button className="icon-btn">
+            <Menu size={22} color="#1f2937" />
+          </button>
+        </div>
       </header>
 
       {/* 탭 네비게이션 */}
       <nav className="tab-nav">
         <button
-          className={`tab-item ${activeTab === 'call' ? 'active' : ''}`}
-          onClick={() => setActiveTab('call')}
+          className="tab-item"
+          onClick={() => navigate('/', { state: { activeTab: 'call' } })}
         >
           전화
         </button>
         <button
-          className={`tab-item ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
+          className="tab-item active"
         >
           맞춤설정
         </button>
         <button
-          className={`tab-item ${activeTab === 'history' ? 'active' : ''}`}
-          onClick={() => setActiveTab('history')}
+          className="tab-item"
+          onClick={() => navigate('/', { state: { activeTab: 'history' } })}
         >
           전화내역
         </button>
@@ -181,12 +172,10 @@ function Settings() {
         <section className="settings-section">
           <h2 className="section-label">그 외 전화</h2>
           <div className="settings-list">
-            <div className="settings-item">
+            <div className="settings-item" onClick={() => navigate('/settings/roleplay')}>
               <span className="item-label">롤플레잉/디스커션 알림</span>
-              <div className="toggle-switch" onClick={handleRoleplayToggle}>
-                <div className={`toggle-track ${roleplayAlert ? 'active' : ''}`}>
-                  <div className="toggle-thumb" />
-                </div>
+              <div className="item-right">
+                <ChevronRight size={20} color="#c0c0c0" />
               </div>
             </div>
             <div className="settings-item">
@@ -208,7 +197,7 @@ function Settings() {
           <span>홈</span>
         </button>
         <button className="nav-item">
-          <Users size={24} />
+          <Monitor size={24} />
           <span>1:1 수업</span>
         </button>
         <button className="nav-item">
@@ -220,7 +209,7 @@ function Settings() {
           <span>AI 전화</span>
         </button>
         <button className="nav-item">
-          <Trophy size={24} />
+          <BarChart2 size={24} />
           <span>성취</span>
         </button>
         <button className="nav-item">
@@ -287,7 +276,13 @@ function Settings() {
           color: #1a1a1a;
         }
 
-        .close-btn {
+        .header-icons {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .icon-btn {
           background: none;
           padding: 4px;
           display: flex;
@@ -300,10 +295,10 @@ function Settings() {
           background: white;
           border-bottom: 1px solid #e8e8e8;
           padding: 0 20px;
+          gap: 24px;
         }
 
         .tab-item {
-          flex: 1;
           padding: 14px 0;
           font-size: 15px;
           font-weight: 500;

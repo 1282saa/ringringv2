@@ -5,61 +5,84 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, ChevronUp, ChevronDown, Check } from 'lucide-react'
+import { ChevronUp, ChevronDown, Check, X, PlaySquare, Plane, Puzzle, UtensilsCrossed, Briefcase, Cpu, GraduationCap, Heart, Palette, Newspaper } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 
 const TOPICS = [
   {
     id: 'youtube',
     label: '유튜브',
+    icon: 'PlaySquare',
     subtopics: ['유튜브 트렌드', '인기 영상 분석', '크리에이터 문화']
   },
   {
     id: 'travel',
     label: '여행',
+    icon: 'Plane',
     subtopics: ['여행 계획', '공항 대화', '호텔 예약', '관광 안내']
   },
   {
     id: 'daily',
     label: '일상과 취미',
+    icon: 'Puzzle',
     subtopics: ['주말 계획', '취미 소개', '일상 대화', '친구와 만남']
   },
   {
     id: 'food',
     label: '음식과 요리',
+    icon: 'UtensilsCrossed',
     subtopics: ['레시피 설명', '식당 주문', '음식 리뷰', '요리 팁']
   },
   {
     id: 'career',
     label: '직장과 커리어',
+    icon: 'Briefcase',
     subtopics: ['직장 생활', '이직 준비', '면접 연습', '업무 대화']
   },
   {
     id: 'tech',
     label: '기술과 트렌드',
+    icon: 'Cpu',
     subtopics: ['AI 기술', '스마트폰', '앱 추천', '테크 뉴스']
   },
   {
     id: 'education',
     label: '교육과 자기계발',
+    icon: 'GraduationCap',
     subtopics: ['학습 방법', '자격증', '온라인 강의', '목표 설정']
   },
   {
     id: 'health',
     label: '건강과 운동',
+    icon: 'Heart',
     subtopics: ['운동 루틴', '건강 관리', '다이어트', '스트레스 해소']
   },
   {
     id: 'culture',
     label: '문화와 예술',
+    icon: 'Palette',
     subtopics: ['영화 리뷰', '음악 추천', '전시회', '공연 감상']
   },
   {
     id: 'news',
     label: '시사와 뉴스',
+    icon: 'Newspaper',
     subtopics: ['최신 뉴스', '경제 이슈', '사회 현상', '글로벌 트렌드']
   },
 ]
+
+const ICON_MAP = {
+  PlaySquare,
+  Plane,
+  Puzzle,
+  UtensilsCrossed,
+  Briefcase,
+  Cpu,
+  GraduationCap,
+  Heart,
+  Palette,
+  Newspaper
+}
 
 function CurriculumSettings() {
   const navigate = useNavigate()
@@ -102,11 +125,10 @@ function CurriculumSettings() {
     <div className="curriculum-settings-page">
       {/* 헤더 */}
       <header className="page-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          <ChevronLeft size={28} color="#1a1a1a" />
-        </button>
         <h1>커리큘럼</h1>
-        <div className="header-spacer" />
+        <button className="close-btn" onClick={() => navigate(-1)}>
+          <X size={24} color="#1a1a1a" />
+        </button>
       </header>
 
       {/* 설명 */}
@@ -137,7 +159,12 @@ function CurriculumSettings() {
                 >
                   {isSelected && <Check size={14} color="white" strokeWidth={3} />}
                 </div>
-                <span className="topic-icon">{topic.label[0]}</span>
+                <span className="topic-icon">
+                  {(() => {
+                    const IconComponent = ICON_MAP[topic.icon]
+                    return IconComponent ? <IconComponent size={24} color={isSelected ? '#6366f1' : '#9ca3af'} /> : null
+                  })()}
+                </span>
                 <span className="topic-label">{topic.label}</span>
                 <span className="expand-icon">
                   {isExpanded ? (
@@ -184,16 +211,8 @@ function CurriculumSettings() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
+          padding: 16px 20px;
           background: white;
-          border-bottom: 1px solid #e8e8e8;
-        }
-
-        .back-btn {
-          background: none;
-          padding: 4px;
-          display: flex;
-          align-items: center;
         }
 
         .page-header h1 {
@@ -202,8 +221,11 @@ function CurriculumSettings() {
           color: #1a1a1a;
         }
 
-        .header-spacer {
-          width: 36px;
+        .close-btn {
+          background: none;
+          padding: 4px;
+          display: flex;
+          align-items: center;
         }
 
         .page-desc {
@@ -232,6 +254,7 @@ function CurriculumSettings() {
 
         .topic-card.selected {
           border-color: #6366f1;
+          background: #f5f3ff;
         }
 
         .topic-header {
@@ -260,7 +283,9 @@ function CurriculumSettings() {
         }
 
         .topic-icon {
-          font-size: 22px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .topic-label {
