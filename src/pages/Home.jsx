@@ -134,8 +134,8 @@ function Home() {
       <div className="main-content">
         {activeTab === 'call' && (
           <>
-            {/* Tutor Card - 링글 스타일 */}
-            <div className="tutor-card">
+            {/* Tutor Card - 링글 스타일 (클릭 시 튜터 설정) */}
+            <div className="tutor-card" onClick={() => navigate('/settings/tutor')}>
               <div className="tutor-avatar-wrapper">
                 <div className="tutor-avatar">
                   <span>{tutorInitial}</span>
@@ -359,6 +359,12 @@ function Home() {
           padding: 40px 32px;
           text-align: center;
           margin-bottom: 16px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .tutor-card:active {
+          background: #f9fafb;
         }
 
         .tutor-avatar-wrapper {

@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  X, Star, Volume2, CheckCircle, ArrowRight, Loader,
-  MessageCircle, Sparkles
-} from 'lucide-react'
+import { X, Star, CheckCircle, Loader } from 'lucide-react'
 import { analyzeConversation, textToSpeech, playAudioBase64 } from '../utils/api'
 
 function Result() {
@@ -17,42 +14,15 @@ function Result() {
   const [feedbackText, setFeedbackText] = useState('')
   const [showCorrections, setShowCorrections] = useState(false)
   const [currentCorrectionIndex, setCurrentCorrectionIndex] = useState(0)
+  const [toast, setToast] = useState(null) // 토스트 알림
 
   useEffect(() => {
     const saved = localStorage.getItem('lastCallResult')
     if (saved) {
       const data = JSON.parse(saved)
       setResult(data)
-      // 자동으로 AI 분석 시작
-      if (data.messages && data.messages.length > 0) {
-        runAutoAnalysis(data.messages)
-      }
     }
   }, [])
-
-  const runAutoAnalysis = async (messages) => {
-    setIsAnalyzing(true)
-    setAnalysisRequested(true)
-    try {
-      const response = await analyzeConversation(messages)
-      if (response.analysis) {
-        setAnalysis(response.analysis)
-      }
-    } catch (err) {
-      console.error('Auto analysis failed:', err)
-      // 실패 시 기본값
-      setAnalysis({
-        cafp_scores: { complexity: 70, accuracy: 75, fluency: 72, pronunciation: 78 },
-        fillers: { count: 0, words: [], percentage: 0 },
-        grammar_corrections: [],
-        vocabulary: { total_words: 0, unique_words: 0, advanced_words: [], suggested_words: [] },
-        overall_feedback: '대화를 완료하셨습니다!',
-        improvement_tips: []
-      })
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }
 
   const requestAnalysis = async () => {
     if (!result?.messages || result.messages.length === 0) return
@@ -85,10 +55,6 @@ function Result() {
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
-
-  // 새로운 단어 수 (AI 분석 결과 또는 추정)
-  const newWords = analysis?.vocabulary?.advanced_words?.length ||
-    Math.floor((analysis?.vocabulary?.unique_words || 0) * 0.2)
 
   // 말한 단어 수
   const wordCount = result?.messages
@@ -125,6 +91,21 @@ function Result() {
 
   const corrections = analysis?.grammar_corrections || []
 
+  // 토스트 알림 표시
+  const showToast = (message) => {
+    setToast(message)
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  // AI 분석 요청 핸들러
+  const handleAnalysisRequest = () => {
+    if (wordCount < 150) {
+      showToast('AI 분석을 받으려면 최소 150단어가 필요해요.')
+      return
+    }
+    requestAnalysis()
+  }
+
   return (
     <div className="ringle-result">
       {/* Header with Close */}
@@ -142,113 +123,49 @@ function Result() {
         </div>
         <h1 className="success-title">대화를 완료했어요.</h1>
 
-        {/* Stats Cards */}
-        <div className="stats-row">
-          <div className="stat-card">
-            <span className="stat-label">새로운 단어</span>
-            <span className="stat-value green">+ {newWords || Math.floor(wordCount * 0.2)}</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-label">말한 단어</span>
-            <span className="stat-value">{wordCount}</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-label">대화 시간</span>
-            <span className="stat-value">{formatDuration(result?.duration)}</span>
+        {/* Stats Cards - 회색 배경 안에 흰색 카드 */}
+        <div className="stats-container">
+          <div className="stats-row">
+            <div className="stat-card">
+              <span className="stat-label">말한 단어</span>
+              <span className="stat-value">{wordCount}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-label">대화 시간</span>
+              <span className="stat-value">{result?.duration ? formatDuration(result.duration) : 'n/a'}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Analysis Status */}
-      {analysisRequested && isAnalyzing && (
-        <div className="analysis-status">
-          <Loader size={16} className="spin" />
-          <span>AI 분석이 요청되었어요.</span>
-        </div>
-      )}
-
-      {analysisRequested && !isAnalyzing && analysis && (
-        <div className="analysis-status success">
-          <Sparkles size={16} />
-          <span>AI 분석이 완료되었어요!</span>
-        </div>
-      )}
-
-      {/* Action Buttons */}
+      {/* Action Buttons - 목표 디자인: AI 분석 요청 + 확인 */}
       <div className="action-buttons">
         <button
-          className={`action-btn outline ${analysisRequested ? 'disabled' : ''}`}
-          onClick={requestAnalysis}
-          disabled={analysisRequested || isAnalyzing}
+          className="action-btn outline"
+          onClick={handleAnalysisRequest}
+          disabled={isAnalyzing}
         >
           {isAnalyzing ? (
             <>
               <Loader size={18} className="spin" />
               분석 중...
             </>
-          ) : analysisRequested ? (
-            'AI 분석 요청'
           ) : (
             'AI 분석 요청'
           )}
         </button>
         <button
           className="action-btn primary"
-          onClick={() => setShowCorrections(true)}
-          disabled={!analysis || corrections.length === 0}
+          onClick={() => navigate('/')}
         >
-          표현 확인하기
+          확인
         </button>
       </div>
 
-      {/* Quick Analysis Preview (if analyzed) */}
-      {analysis && !showCorrections && (
-        <div className="analysis-preview">
-          <div className="preview-header">
-            <MessageCircle size={18} />
-            <span>분석 결과 요약</span>
-          </div>
-
-          <div className="cafp-mini">
-            {[
-              { label: 'C', score: analysis.cafp_scores?.complexity || 0 },
-              { label: 'A', score: analysis.cafp_scores?.accuracy || 0 },
-              { label: 'F', score: analysis.cafp_scores?.fluency || 0 },
-              { label: 'P', score: analysis.cafp_scores?.pronunciation || 0 },
-            ].map(item => (
-              <div key={item.label} className="cafp-item">
-                <div className="cafp-label">{item.label}</div>
-                <div className="cafp-bar">
-                  <div
-                    className="cafp-fill"
-                    style={{ width: `${item.score}%` }}
-                  />
-                </div>
-                <div className="cafp-score">{item.score}</div>
-              </div>
-            ))}
-          </div>
-
-          {analysis.overall_feedback && (
-            <p className="feedback-text">{analysis.overall_feedback}</p>
-          )}
-
-          {analysis.fillers?.count > 0 && (
-            <div className="filler-warning">
-              <span>필러 단어 {analysis.fillers.count}회 사용</span>
-              <span className="filler-words">
-                {analysis.fillers.words.slice(0, 3).join(', ')}
-              </span>
-            </div>
-          )}
-
-          {/* 피드백 남기기 버튼 */}
-          <button
-            className="feedback-trigger-btn"
-            onClick={() => setShowFeedback(true)}
-          >
-            피드백 남기기
-          </button>
+      {/* 토스트 알림 */}
+      {toast && (
+        <div className="toast-notification">
+          {toast}
         </div>
       )}
 
@@ -380,7 +297,7 @@ function Result() {
       <style>{`
         .ringle-result {
           min-height: 100vh;
-          background: #f5f5f5;
+          background: white;
           padding-bottom: 40px;
         }
 
@@ -395,7 +312,7 @@ function Result() {
         }
 
         .success-section {
-          background: #e5e5e5;
+          background: white;
           padding: 60px 20px 30px;
           text-align: center;
         }
@@ -419,37 +336,70 @@ function Result() {
           margin-bottom: 24px;
         }
 
+        /* 회색 배경 컨테이너 */
+        .stats-container {
+          background: #f3f4f6;
+          border-radius: 16px;
+          padding: 16px;
+          margin: 0 20px;
+        }
+
         .stats-row {
           display: flex;
           gap: 12px;
-          padding: 0 10px;
         }
 
         .stat-card {
           flex: 1;
           background: white;
           border-radius: 12px;
-          padding: 16px 12px;
+          padding: 20px 16px;
           text-align: center;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          border: 1px solid #e5e7eb;
         }
 
         .stat-label {
           display: block;
           font-size: 13px;
           color: #6b7280;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
         }
 
         .stat-value {
           display: block;
-          font-size: 24px;
+          font-size: 28px;
           font-weight: 700;
           color: #1f2937;
         }
 
         .stat-value.green {
           color: #22c55e;
+        }
+
+        /* 토스트 알림 */
+        .toast-notification {
+          position: fixed;
+          bottom: 100px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 14px 24px;
+          border-radius: 12px;
+          font-size: 14px;
+          z-index: 1000;
+          animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
         }
 
         .analysis-status {

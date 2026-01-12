@@ -119,6 +119,11 @@ eng-learning/
 | [Phase 3](docs/phase/PHASE-03-tutor-settings.md) | Tutor Settings | ✅ |
 | [Phase 4](docs/phase/PHASE-04-call-analysis.md) | Call Analysis | ✅ |
 | [Phase 5](docs/phase/PHASE-05-github-setup.md) | GitHub Setup | ✅ |
+| [Phase 6](docs/phase/PHASE-06-ai-phone-tab.md) | AI Phone Tab | ✅ |
+| [Phase 7](docs/phase/PHASE-07-home-tab-refactor.md) | Home Tab Refactor | ✅ |
+| [Phase 8](docs/phase/PHASE-08-session-management.md) | Session Management | ✅ |
+| [Phase 9](docs/phase/PHASE-09-ux-ui-improvements.md) | UX/UI Improvements | ✅ |
+| [Phase 10](docs/phase/PHASE-10-call-tab-ui-refinement.md) | Call Tab UI Refinement | ✅ |
 
 ---
 

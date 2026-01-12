@@ -82,9 +82,8 @@ export const GENDERS = [
  * @property {number} rate - Web Speech API에서 사용할 속도 값
  */
 export const SPEEDS = [
-  { id: 'slow', label: '느리게', sublabel: '0.8x', rate: 0.8 },
   { id: 'normal', label: '보통', sublabel: '1.0x', rate: 1.0 },
-  { id: 'fast', label: '빠르게', sublabel: '1.2x', rate: 1.2 },
+  { id: 'slow', label: '천천히', sublabel: '0.8x', rate: 0.8 },
 ]
 
 /**

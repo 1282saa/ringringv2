@@ -19,6 +19,16 @@ const SUBTITLE_BUTTON_LABELS = {
   off: '자막 끄기'
 }
 
+// AI 응답에서 톤 지시어 제거 (예: *in a friendly tone*)
+const cleanSubtitleText = (text) => {
+  if (!text) return ''
+  // *...* 패턴 제거 (톤 지시어)
+  return text
+    .replace(/\*[^*]+\*\s*/g, '')  // *in a friendly tone* 등 제거
+    .replace(/^\s+/, '')           // 앞 공백 제거
+    .trim()
+}
+
 function Call() {
   const navigate = useNavigate()
   const [callTime, setCallTime] = useState(0)
@@ -30,8 +40,7 @@ function Call() {
   const [subtitleMode, setSubtitleMode] = useState('all') // all, english, translation, off
   const [showSubtitleModal, setShowSubtitleModal] = useState(false)
   const [messages, setMessages] = useState([])
-  const [transcript, setTranscript] = useState('')
-  const [interimTranscript, setInterimTranscript] = useState('') // 중간 인식 결과
+  const [interimTranscript, setInterimTranscript] = useState('')
   const [currentSubtitle, setCurrentSubtitle] = useState('')
   const [currentTranslation, setCurrentTranslation] = useState('')
   const [turnCount, setTurnCount] = useState(0)
@@ -84,7 +93,6 @@ function Call() {
           setInterimTranscript('')
           handleUserSpeech(finalTranscript)
         }
-        setTranscript(interim || finalTranscript)
       }
 
       recognitionRef.current.onerror = (event) => {
@@ -174,7 +182,6 @@ function Call() {
   const startListening = () => {
     if (recognitionRef.current && !isMuted) {
       setIsListening(true)
-      setTranscript('')
       try {
         recognitionRef.current.start()
       } catch (err) {
@@ -314,10 +321,10 @@ function Call() {
   // 자막 모드에 따른 표시 내용
   const getSubtitleContent = () => {
     if (subtitleMode === 'off') return null
-    if (subtitleMode === 'english') return currentSubtitle
+    if (subtitleMode === 'english') return cleanSubtitleText(currentSubtitle)
     if (subtitleMode === 'translation') return currentTranslation || '(번역 준비 중...)'
     // 'all' - 모두 보기
-    return currentSubtitle
+    return cleanSubtitleText(currentSubtitle)
   }
 
   const subtitleContent = getSubtitleContent()
@@ -542,17 +549,20 @@ function Call() {
           text-align: center;
         }
 
-        /* Bottom Controls */
+        /* Bottom Controls - 목표 디자인: 컨트롤 위, 종료버튼 아래 가운데 */
         .call-controls {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
           padding: 20px;
           padding-bottom: 40px;
+          gap: 30px;
         }
 
         .control-buttons {
           display: flex;
           justify-content: center;
-          gap: 40px;
-          margin-bottom: 30px;
+          gap: 60px;
         }
 
         .control-btn {
@@ -562,6 +572,7 @@ function Call() {
           gap: 8px;
           background: none;
           color: rgba(255, 255, 255, 0.8);
+          min-width: 60px;
         }
 
         .control-btn.active {
@@ -570,6 +581,7 @@ function Call() {
 
         .control-btn span {
           font-size: 12px;
+          white-space: nowrap;
         }
 
         .end-call-btn {
@@ -580,7 +592,6 @@ function Call() {
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto;
           box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
         }
 

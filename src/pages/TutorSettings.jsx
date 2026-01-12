@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { X } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 import { TUTORS, DIFFICULTIES, DURATIONS, SPEEDS } from '../constants'
 
@@ -71,11 +71,10 @@ function TutorSettings() {
     <div className="tutor-settings-page">
       {/* 헤더 */}
       <header className="page-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          <ChevronLeft size={28} color="#1a1a1a" />
-        </button>
         <h1>튜터</h1>
-        <div className="header-spacer" />
+        <button className="close-btn" onClick={() => navigate(-1)}>
+          <X size={24} color="#6b7280" />
+        </button>
       </header>
 
       <div className="page-content">
@@ -94,15 +93,10 @@ function TutorSettings() {
                 className={`tutor-card ${selectedTutor === tutor.id ? 'selected' : ''}`}
                 onClick={() => scrollToTutor(index)}
               >
-                <div className="tutor-avatar">{tutor.name[0]}</div>
-                <div className="tutor-details">
-                  <span className="tutor-meta">{tutor.nationality} {tutor.genderLabel}</span>
-                  <h3 className="tutor-name">{tutor.name}</h3>
-                  <div className="tutor-tags">
-                    {tutor.tags.map((tag, i) => (
-                      <span key={i} className="tag">#{tag}</span>
-                    ))}
-                  </div>
+                <span className="tutor-meta">{tutor.nationality} {tutor.genderLabel}</span>
+                <h3 className="tutor-name">{tutor.name}</h3>
+                <div className="tutor-tags">
+                  {tutor.tags.join('  ')}
                 </div>
               </div>
             ))}
@@ -189,16 +183,8 @@ function TutorSettings() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
+          padding: 16px 20px;
           background: white;
-          border-bottom: 1px solid #e8e8e8;
-        }
-
-        .back-btn {
-          background: none;
-          padding: 4px;
-          display: flex;
-          align-items: center;
         }
 
         .page-header h1 {
@@ -207,8 +193,11 @@ function TutorSettings() {
           color: #1a1a1a;
         }
 
-        .header-spacer {
-          width: 36px;
+        .close-btn {
+          background: none;
+          padding: 4px;
+          display: flex;
+          align-items: center;
         }
 
         .page-content {
@@ -263,22 +252,14 @@ function TutorSettings() {
           border: 2px solid transparent;
           transition: all 0.2s;
           cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
         }
 
         .tutor-card.selected {
           border-color: #6366f1;
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
-        }
-
-        .tutor-avatar {
-          font-size: 48px;
-          margin-bottom: 16px;
-        }
-
-        .tutor-details {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
+          background: #f5f3ff;
         }
 
         .tutor-meta {
@@ -293,14 +274,9 @@ function TutorSettings() {
         }
 
         .tutor-tags {
-          display: flex;
-          gap: 8px;
-          margin-top: 4px;
-        }
-
-        .tag {
           font-size: 13px;
-          color: #6366f1;
+          color: #888;
+          margin-top: 4px;
         }
 
         .carousel-dots {
