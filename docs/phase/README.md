@@ -16,6 +16,7 @@ This directory contains detailed documentation for each development phase of the
 | [Phase 6](PHASE-06-settings-backend.md) | Settings Backend Integration | ✅ Completed | 2026-01-12 |
 | [Phase 7](PHASE-07-settings-ui-refinement.md) | Settings UI/UX Refinement | ✅ Completed | 2026-01-12 |
 | [Phase 8](PHASE-08-constant-refactoring.md) | Constant Refactoring & Code Cleanup | ✅ Completed | 2026-01-12 |
+| [Phase 9](PHASE-09-ux-ui-improvements.md) | UX/UI Improvements | ✅ Completed | 2026-01-12 |
 
 ---
 
@@ -70,6 +71,14 @@ This directory contains detailed documentation for each development phase of the
 - 중복 상수 제거 (TutorSettings.jsx)
 - 이모지 아이콘 제거 (ACCENTS, GENDERS, TOPICS)
 - 코드 일관성 및 유지보수성 향상
+
+### Phase 9: UX/UI Improvements
+- Call.jsx: 자막 버튼 동적 텍스트, 스피커 토글, 음성 인식 중간 결과
+- Practice.jsx: Levenshtein 거리 알고리즘 정확도 계산
+- Result.jsx: 피드백 모달 개선, 한글화
+- Analysis.jsx: 음성 재생 버튼, 프로그레스 바
+- Home.jsx: 150단어 기준 UI, 하단 네비게이션 액션
+- Settings.jsx: 저장 토스트 알림
 
 ---
 
