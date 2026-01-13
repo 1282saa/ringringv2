@@ -1,0 +1,801 @@
+openapi: 3.0.3
+info:
+  title: Ringle AI English Learning API
+  description: |
+    AI-powered English conversation practice API.
+
+    This API provides:
+    - Real-time AI conversation with Claude
+    - Text-to-Speech (TTS) via Amazon Polly
+    - Speech-to-Text (STT) via Amazon Transcribe
+    - Conversation analysis with CAFP scoring
+    - User settings and session management
+
+    ## Authentication
+    Currently no authentication required (MVP phase).
+    Device ID is used for user identification.
+
+    ## Base URL
+    Production: `https://n4o7d3c14c.execute-api.us-east-1.amazonaws.com/prod`
+  version: 1.0.0
+  contact:
+    name: Ringle AI Team
+    url: https://github.com/1282saa/ringgle
+  license:
+    name: Proprietary
+    url: https://github.com/1282saa/ringgle
+
+servers:
+  - url: https://n4o7d3c14c.execute-api.us-east-1.amazonaws.com/prod
+    description: Production server (AWS API Gateway)
+
+tags:
+  - name: Conversation
+    description: AI conversation and analysis
+  - name: Speech
+    description: Text-to-Speech and Speech-to-Text
+  - name: Settings
+    description: User preferences management
+  - name: Sessions
+    description: Conversation session management
+
+paths:
+  /chat:
+    post:
+      summary: Universal API Endpoint
+      description: |
+        Single endpoint that handles all actions via the `action` parameter.
+
+        Available actions:
+        - `chat` - AI conversation
+        - `tts` - Text-to-Speech
+        - `stt` - Speech-to-Text
+        - `analyze` - Conversation analysis
+        - `save_settings` - Save user settings
+        - `get_settings` - Get user settings
+        - `start_session` - Start conversation session
+        - `end_session` - End conversation session
+        - `save_message` - Save chat message
+        - `get_sessions` - List user sessions
+        - `get_session_detail` - Get session with messages
+        - `delete_session` - Delete session
+        - `get_transcribe_url` - Get streaming STT URL
+      operationId: handleRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/ChatRequest'
+                - $ref: '#/components/schemas/TTSRequest'
+                - $ref: '#/components/schemas/STTRequest'
+                - $ref: '#/components/schemas/AnalyzeRequest'
+                - $ref: '#/components/schemas/SaveSettingsRequest'
+                - $ref: '#/components/schemas/GetSettingsRequest'
+                - $ref: '#/components/schemas/StartSessionRequest'
+                - $ref: '#/components/schemas/EndSessionRequest'
+                - $ref: '#/components/schemas/SaveMessageRequest'
+                - $ref: '#/components/schemas/GetSessionsRequest'
+                - $ref: '#/components/schemas/GetSessionDetailRequest'
+                - $ref: '#/components/schemas/DeleteSessionRequest'
+                - $ref: '#/components/schemas/GetTranscribeUrlRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ChatResponse'
+                  - $ref: '#/components/schemas/TTSResponse'
+                  - $ref: '#/components/schemas/STTResponse'
+                  - $ref: '#/components/schemas/AnalyzeResponse'
+                  - $ref: '#/components/schemas/SettingsResponse'
+                  - $ref: '#/components/schemas/SessionResponse'
+                  - $ref: '#/components/schemas/SessionsListResponse'
+                  - $ref: '#/components/schemas/SessionDetailResponse'
+                  - $ref: '#/components/schemas/TranscribeUrlResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    # ==========================================
+    # Common Types
+    # ==========================================
+
+    Message:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          description: Message sender role
+          example: user
+        content:
+          type: string
+          description: Message text content
+          example: "Hello, how are you?"
+
+    TutorSettings:
+      type: object
+      properties:
+        accent:
+          type: string
+          enum: [us, uk, au, in]
+          default: us
+          description: |
+            Tutor accent:
+            - `us` - American English
+            - `uk` - British English
+            - `au` - Australian English
+            - `in` - Indian English
+        gender:
+          type: string
+          enum: [female, male]
+          default: female
+          description: Tutor gender (affects TTS voice)
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+          default: intermediate
+          description: |
+            Conversation difficulty level:
+            - `beginner` - Simple words, short sentences
+            - `intermediate` - Normal conversation
+            - `advanced` - Complex vocabulary, idioms
+        topic:
+          type: string
+          enum: [business, daily, travel, interview]
+          default: daily
+          description: Conversation topic context
+        speed:
+          type: string
+          enum: [slow, normal, fast]
+          default: normal
+          description: TTS speaking speed
+        tutorName:
+          type: string
+          example: Gwen
+          description: Tutor display name
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "deviceId is required"
+
+    # ==========================================
+    # Chat (AI Conversation)
+    # ==========================================
+
+    ChatRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [chat]
+          example: chat
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+          description: Conversation history
+          example:
+            - role: user
+              content: "Hello!"
+            - role: assistant
+              content: "Hi! How are you doing today?"
+            - role: user
+              content: "I'm great, thanks!"
+        settings:
+          $ref: '#/components/schemas/TutorSettings'
+
+    ChatResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: AI response text
+          example: "That's wonderful to hear! What are you up to today?"
+        role:
+          type: string
+          enum: [assistant]
+          example: assistant
+
+    # ==========================================
+    # TTS (Text-to-Speech)
+    # ==========================================
+
+    TTSRequest:
+      type: object
+      required:
+        - action
+        - text
+      properties:
+        action:
+          type: string
+          enum: [tts]
+          example: tts
+        text:
+          type: string
+          description: Text to convert to speech
+          example: "Hello, how are you doing today?"
+        settings:
+          $ref: '#/components/schemas/TutorSettings'
+
+    TTSResponse:
+      type: object
+      properties:
+        audio:
+          type: string
+          format: byte
+          description: Base64 encoded MP3 audio
+          example: "//uQxAAAAAANIAAAAAExBTUUzLjEwMFVV..."
+        contentType:
+          type: string
+          example: "audio/mpeg"
+        voice:
+          type: string
+          description: Polly voice ID used
+          example: Joanna
+        engine:
+          type: string
+          enum: [neural, standard]
+          description: Polly engine type
+          example: neural
+
+    # ==========================================
+    # STT (Speech-to-Text)
+    # ==========================================
+
+    STTRequest:
+      type: object
+      required:
+        - action
+        - audio
+      properties:
+        action:
+          type: string
+          enum: [stt]
+          example: stt
+        audio:
+          type: string
+          format: byte
+          description: Base64 encoded audio (WebM format)
+        language:
+          type: string
+          default: en-US
+          description: Language code for transcription
+          example: en-US
+
+    STTResponse:
+      type: object
+      properties:
+        transcript:
+          type: string
+          description: Transcribed text
+          example: "Hello, I'm learning English."
+        success:
+          type: boolean
+          example: true
+
+    # ==========================================
+    # Analyze (Conversation Analysis)
+    # ==========================================
+
+    AnalyzeRequest:
+      type: object
+      required:
+        - action
+        - messages
+      properties:
+        action:
+          type: string
+          enum: [analyze]
+          example: analyze
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+          description: Conversation to analyze
+
+    AnalyzeResponse:
+      type: object
+      properties:
+        analysis:
+          $ref: '#/components/schemas/AnalysisResult'
+        success:
+          type: boolean
+          example: true
+        fallback:
+          type: boolean
+          description: True if using fallback analysis (AI failed)
+          example: false
+
+    AnalysisResult:
+      type: object
+      properties:
+        cafp_scores:
+          type: object
+          properties:
+            complexity:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Vocabulary diversity and sentence structure
+              example: 75
+            accuracy:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Grammatical correctness
+              example: 80
+            fluency:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Natural flow and coherence
+              example: 72
+            pronunciation:
+              type: integer
+              minimum: 0
+              maximum: 100
+              description: Estimated pronunciation score
+              example: 78
+        fillers:
+          type: object
+          properties:
+            count:
+              type: integer
+              description: Number of filler words
+              example: 3
+            words:
+              type: array
+              items:
+                type: string
+              description: List of filler words found
+              example: ["um", "like", "you know"]
+            percentage:
+              type: number
+              format: float
+              description: Percentage of words that are fillers
+              example: 2.5
+        grammar_corrections:
+          type: array
+          items:
+            type: object
+            properties:
+              original:
+                type: string
+                example: "I go to school yesterday"
+              corrected:
+                type: string
+                example: "I went to school yesterday"
+              explanation:
+                type: string
+                description: Explanation in Korean
+                example: "과거 시제를 사용해야 합니다"
+        vocabulary:
+          type: object
+          properties:
+            total_words:
+              type: integer
+              example: 120
+            unique_words:
+              type: integer
+              example: 85
+            advanced_words:
+              type: array
+              items:
+                type: string
+              example: ["consequently", "nevertheless"]
+            suggested_words:
+              type: array
+              items:
+                type: string
+              example: ["moreover", "furthermore"]
+        overall_feedback:
+          type: string
+          description: Overall feedback in Korean
+          example: "전반적으로 잘 하셨습니다!"
+        improvement_tips:
+          type: array
+          items:
+            type: string
+          description: Improvement suggestions in Korean
+          example:
+            - "더 다양한 어휘를 사용해보세요"
+            - "문장을 조금 더 길게 만들어보세요"
+
+    # ==========================================
+    # Settings
+    # ==========================================
+
+    SaveSettingsRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+      properties:
+        action:
+          type: string
+          enum: [save_settings]
+          example: save_settings
+        deviceId:
+          type: string
+          format: uuid
+          description: Device UUID
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        settings:
+          $ref: '#/components/schemas/TutorSettings'
+
+    GetSettingsRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+      properties:
+        action:
+          type: string
+          enum: [get_settings]
+          example: get_settings
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+    SettingsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        settings:
+          $ref: '#/components/schemas/TutorSettings'
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-01-13T10:00:00.000Z"
+        message:
+          type: string
+          description: Optional message (e.g., "No settings found")
+
+    # ==========================================
+    # Session Management
+    # ==========================================
+
+    StartSessionRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+        - sessionId
+      properties:
+        action:
+          type: string
+          enum: [start_session]
+          example: start_session
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        sessionId:
+          type: string
+          format: uuid
+          description: Client-generated session UUID
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+        settings:
+          $ref: '#/components/schemas/TutorSettings'
+        tutorName:
+          type: string
+          default: Gwen
+          example: Gwen
+
+    EndSessionRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+        - sessionId
+      properties:
+        action:
+          type: string
+          enum: [end_session]
+          example: end_session
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        sessionId:
+          type: string
+          format: uuid
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+        duration:
+          type: integer
+          description: Call duration in seconds
+          example: 330
+        turnCount:
+          type: integer
+          description: Number of conversation turns
+          example: 8
+        wordCount:
+          type: integer
+          description: Total words spoken by user
+          example: 156
+
+    SaveMessageRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+        - sessionId
+        - message
+      properties:
+        action:
+          type: string
+          enum: [save_message]
+          example: save_message
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        sessionId:
+          type: string
+          format: uuid
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+        message:
+          type: object
+          required:
+            - role
+            - content
+          properties:
+            role:
+              type: string
+              enum: [user, assistant]
+              example: user
+            content:
+              type: string
+              example: "Hello, I'm learning English!"
+            translation:
+              type: string
+              description: Korean translation (optional)
+              example: "안녕하세요, 저는 영어를 배우고 있어요!"
+            turnNumber:
+              type: integer
+              example: 1
+
+    GetSessionsRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+      properties:
+        action:
+          type: string
+          enum: [get_sessions]
+          example: get_sessions
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        limit:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 50
+          description: Number of sessions to return
+        lastKey:
+          type: object
+          description: Pagination key from previous response
+
+    GetSessionDetailRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+        - sessionId
+      properties:
+        action:
+          type: string
+          enum: [get_session_detail]
+          example: get_session_detail
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        sessionId:
+          type: string
+          format: uuid
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+
+    DeleteSessionRequest:
+      type: object
+      required:
+        - action
+        - deviceId
+        - sessionId
+      properties:
+        action:
+          type: string
+          enum: [delete_session]
+          example: delete_session
+        deviceId:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        sessionId:
+          type: string
+          format: uuid
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+
+    SessionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        sessionId:
+          type: string
+          format: uuid
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+        startedAt:
+          type: string
+          format: date-time
+          example: "2026-01-13T10:00:00.000Z"
+        endedAt:
+          type: string
+          format: date-time
+          example: "2026-01-13T10:05:30.000Z"
+        messageId:
+          type: string
+          description: For save_message response
+          example: "MSG#2026-01-13T10:00:15.000Z"
+        deletedCount:
+          type: integer
+          description: For delete_session response
+          example: 12
+
+    SessionsListResponse:
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionSummary'
+        lastKey:
+          type: object
+          description: Pagination key for next page
+        hasMore:
+          type: boolean
+          description: Whether more sessions exist
+          example: true
+
+    SessionSummary:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          example: "f8e7d6c5-b4a3-2190-fedc-ba0987654321"
+        tutorName:
+          type: string
+          example: Gwen
+        topic:
+          type: string
+          example: business
+        accent:
+          type: string
+          example: us
+        level:
+          type: string
+          example: intermediate
+        startedAt:
+          type: string
+          format: date-time
+          example: "2026-01-13T10:00:00.000Z"
+        endedAt:
+          type: string
+          format: date-time
+          example: "2026-01-13T10:05:30.000Z"
+        duration:
+          type: integer
+          description: Duration in seconds
+          example: 330
+        turnCount:
+          type: integer
+          example: 8
+        wordCount:
+          type: integer
+          example: 156
+        status:
+          type: string
+          enum: [active, completed]
+          example: completed
+
+    SessionDetailResponse:
+      type: object
+      properties:
+        session:
+          $ref: '#/components/schemas/SessionSummary'
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                enum: [user, assistant]
+              content:
+                type: string
+              translation:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+              turnNumber:
+                type: integer
+
+    # ==========================================
+    # Transcribe Streaming
+    # ==========================================
+
+    GetTranscribeUrlRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [get_transcribe_url]
+          example: get_transcribe_url
+        language:
+          type: string
+          default: en-US
+          example: en-US
+        sampleRate:
+          type: integer
+          default: 16000
+          example: 16000
+
+    TranscribeUrlResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Presigned WebSocket URL for Transcribe Streaming
+          example: "wss://transcribestreaming.us-east-1.amazonaws.com:8443/stream-transcription-websocket?..."
+        region:
+          type: string
+          example: us-east-1
+        language:
+          type: string
+          example: en-US
+        sampleRate:
+          type: integer
+          example: 16000
+        expiresIn:
+          type: integer
+          description: URL expiration in seconds
+          example: 300
