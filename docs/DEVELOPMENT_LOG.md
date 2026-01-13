@@ -144,6 +144,24 @@ Call Tab UI
 
 ---
 
+## Deployment
+
+| Resource | Value |
+|----------|-------|
+| **Live URL** | https://d3pw62uy753kuv.cloudfront.net |
+| **CloudFront ID** | `E2EPS9DBLFD0FM` |
+| **S3 Bucket** | `eng-call` (ap-northeast-2) |
+| **API Gateway** | us-east-1 |
+
+**Deploy Commands:**
+```bash
+npm run build
+aws s3 sync dist/ s3://eng-call --delete --region ap-northeast-2
+aws cloudfront create-invalidation --distribution-id E2EPS9DBLFD0FM --paths "/*"
+```
+
+---
+
 ## API Endpoints
 
 **Base URL:** `https://n4o7d3c14c.execute-api.us-east-1.amazonaws.com/prod/chat`

@@ -2,39 +2,50 @@
 
 ## Overview
 
-Ringle AI English Learning MVP uses a serverless architecture on AWS to provide real-time AI-powered English conversation practice. All services are deployed in the **us-east-1** region.
+Ringle AI English Learning MVP uses a serverless architecture on AWS to provide real-time AI-powered English conversation practice.
+
+| Component | Region | Purpose |
+|-----------|--------|---------|
+| Frontend (S3 + CloudFront) | ap-northeast-2 | Static web hosting |
+| Backend (Lambda + API Gateway) | us-east-1 | API services |
+| AI/ML Services (Bedrock, Polly, Transcribe) | us-east-1 | AI processing |
+| Database (DynamoDB) | us-east-1 | Data storage |
+
+**Live URL:** https://d3pw62uy753kuv.cloudfront.net
 
 ---
 
 ## Architecture Diagram
 
 ```
-                            +------------------+
-                            |   React Client   |
-                            |  (Web/iOS/Android)|
-                            +--------+---------+
-                                     |
-                                     | HTTPS
-                                     v
-                            +------------------+
-                            |   API Gateway    |
-                            |    (REST API)    |
-                            +--------+---------+
-                                     |
-                                     | Invoke
-                                     v
-                            +------------------+
-                            |     Lambda       |
-                            |  (Python 3.11)   |
-                            +--------+---------+
-                                     |
-          +-------------+------------+------------+-------------+
-          |             |            |            |             |
-          v             v            v            v             v
-    +---------+   +---------+  +-----------+  +----------+  +--------+
-    | Bedrock |   |  Polly  |  | Transcribe|  | DynamoDB |  |   S3   |
-    | (Claude)|   |  (TTS)  |  |   (STT)   |  |  (Data)  |  | (Audio)|
-    +---------+   +---------+  +-----------+  +----------+  +--------+
+                                              +------------------+
+                                              |   React Client   |
+                                              |  (Web/iOS/Android)|
+                                              +--------+---------+
+                                                       |
+                              +------------------------+------------------------+
+                              |                                                 |
+                              | Static Assets                                   | API Calls
+                              v                                                 v
+                    +------------------+                               +------------------+
+                    |   CloudFront     |                               |   API Gateway    |
+                    |     (CDN)        |                               |    (REST API)    |
+                    +--------+---------+                               +--------+---------+
+                             |                                                  |
+                             v                                                  | Invoke
+                    +------------------+                                        v
+                    |       S3         |                               +------------------+
+                    |  (Static Web)    |                               |     Lambda       |
+                    +------------------+                               |  (Python 3.11)   |
+                                                                       +--------+---------+
+                                                                                |
+                                         +-------------+------------+------------+-------------+
+                                         |             |            |            |             |
+                                         v             v            v            v             v
+                                   +---------+   +---------+  +-----------+  +----------+  +--------+
+                                   | Bedrock |   |  Polly  |  | Transcribe|  | DynamoDB |  |   S3   |
+                                   | (Claude)|   |  (TTS)  |  |   (STT)   |  |  (Data)  |  | (Audio)|
+                                   +---------+   +---------+  +-----------+  +----------+  +--------+
 ```
 
 ---
@@ -220,7 +231,7 @@ content, translation, turnNumber
 
 ---
 
-### 7. Amazon S3
+### 7. Amazon S3 (Audio)
 
 | Property | Value |
 |----------|-------|
@@ -232,6 +243,53 @@ content, translation, turnNumber
 - Audio files are uploaded for Transcribe processing
 - Deleted immediately after transcription completes
 - No long-term storage
+
+---
+
+### 8. Amazon CloudFront (CDN)
+
+| Property | Value |
+|----------|-------|
+| Distribution ID | `E2EPS9DBLFD0FM` |
+| Domain | `d3pw62uy753kuv.cloudfront.net` |
+| Origin | S3 (`eng-call`) |
+| Status | Deployed |
+
+**Features:**
+- Global edge locations for low latency
+- HTTPS by default
+- Automatic Gzip compression
+- Cache invalidation support
+
+---
+
+### 9. Amazon S3 (Static Website)
+
+| Property | Value |
+|----------|-------|
+| Bucket Name | `eng-call` |
+| Region | ap-northeast-2 (Seoul) |
+| Purpose | Frontend static hosting |
+
+**Contents:**
+```
+eng-call/
+├── index.html
+├── vite.svg
+└── assets/
+    ├── index-*.js
+    └── index-*.css
+```
+
+**Deployment Commands:**
+```bash
+# Build and deploy
+npm run build
+aws s3 sync dist/ s3://eng-call --delete --region ap-northeast-2
+
+# Invalidate CloudFront cache
+aws cloudfront create-invalidation --distribution-id E2EPS9DBLFD0FM --paths "/*"
+```
 
 ---
 
@@ -392,11 +450,11 @@ Lambda logs are automatically sent to CloudWatch:
 ## Future Improvements
 
 1. **Authentication**: Add Amazon Cognito for user authentication
-2. **CDN**: Use CloudFront for static assets
-3. **Caching**: Add ElastiCache for frequent queries
-4. **Multi-region**: Deploy to multiple regions for lower latency
-5. **Monitoring**: Add X-Ray for distributed tracing
-6. **CI/CD**: Set up CodePipeline for automated deployments
+2. **Caching**: Add ElastiCache for frequent queries
+3. **Multi-region**: Deploy to multiple regions for lower latency
+4. **Monitoring**: Add X-Ray for distributed tracing
+5. **CI/CD**: Set up CodePipeline for automated deployments
+6. **Custom Domain**: Connect custom domain with Route 53 + ACM
 
 ---
 
