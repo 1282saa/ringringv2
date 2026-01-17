@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "408302746123",
+    "project_id": "ai-english-call",
+    "storage_bucket": "ai-english-call.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408302746123:android:19b5eb06dbb92712b0650e",
+        "android_client_info": {
+          "package_name": "com.aienglish.call"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy-YfPyS1Ln5FOB6oG1oW67tYI25PbDO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

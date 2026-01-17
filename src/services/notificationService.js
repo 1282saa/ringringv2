@@ -18,6 +18,26 @@ import { registerFcmToken } from '../utils/api';
 const CHANNEL_AI_SPEAKING = 'ai-speaking-partner';
 const CHANNEL_REMINDER = 'reminder';
 const CHANNEL_ANALYSIS = 'ai-analysis-report';
+const CHANNEL_MOTIVATION = 'motivation';
+
+// 동기부여 메시지 목록
+const MOTIVATION_MESSAGES = [
+  "오늘도 한 걸음 더 성장하는 당신, 멋져요! 💪",
+  "꾸준함이 실력이 됩니다. 화이팅! 🔥",
+  "영어 실력이 쑥쑥 자라고 있어요! 🌱",
+  "오늘의 대화가 내일의 자신감이 됩니다 ✨",
+  "작은 노력이 큰 변화를 만들어요! 🚀",
+  "당신의 도전을 응원합니다! 👏",
+  "매일 조금씩, 어느새 달라진 나! 🌟",
+  "포기하지 않는 당신이 진짜 멋져요! 💯",
+  "오늘도 영어와 친해지는 시간! 😊",
+  "Practice makes perfect! 연습이 완벽을 만들어요! 🎯",
+  "You're doing great! 잘하고 있어요! 👍",
+  "한 번의 통화가 큰 성장의 시작이에요! 📈",
+  "자신감을 갖고 대화해보세요! 💬",
+  "실수해도 괜찮아요, 그게 배움이니까! 📚",
+  "오늘의 노력이 미래의 나를 바꿔요! 🌈"
+];
 
 /**
  * 알림 서비스 클래스
@@ -45,19 +65,21 @@ class NotificationService {
       // 로컬 알림 권한 요청
       await this.requestLocalNotificationPermission();
 
-      // 푸시 알림 권한 요청
-      await this.requestPushNotificationPermission();
-
       // 알림 채널 생성 (Android)
       await this.createNotificationChannels();
 
-      // 리스너 등록
+      // 푸시 알림 권한 요청 및 등록
+      await this.requestPushNotificationPermission();
+
+      // 리스너 등록 (푸시 + 로컬 알림)
       this.registerListeners();
 
       this.isInitialized = true;
-      console.log('[NotificationService] Initialized successfully');
+      console.log('[NotificationService] Initialized successfully (push + local)');
     } catch (error) {
       console.error('[NotificationService] Initialization failed:', error);
+      // 초기화 실패해도 앱은 계속 동작하도록
+      this.isInitialized = true;
     }
   }
 
@@ -124,12 +146,44 @@ class NotificationService {
       visibility: 1,
       sound: 'default',
     });
+
+    await LocalNotifications.createChannel({
+      id: CHANNEL_MOTIVATION,
+      name: '동기부여 알림',
+      description: '전화 전 동기부여 메시지',
+      importance: 4,
+      visibility: 1,
+      sound: 'default',
+      vibration: true,
+    });
   }
 
   /**
-   * 이벤트 리스너 등록
+   * 랜덤 동기부여 메시지 가져오기
+   */
+  getRandomMotivationMessage() {
+    const index = Math.floor(Math.random() * MOTIVATION_MESSAGES.length);
+    return MOTIVATION_MESSAGES[index];
+  }
+
+  /**
+   * 로컬 알림 리스너만 등록
+   */
+  registerLocalListeners() {
+    // 로컬 알림 탭
+    LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
+      console.log('[NotificationService] Local notification action:', action);
+      this.handleNotificationAction(action.notification.extra);
+    });
+  }
+
+  /**
+   * 이벤트 리스너 등록 (푸시 포함 - Firebase 설정 후 사용)
    */
   registerListeners() {
+    // 로컬 알림 리스너
+    this.registerLocalListeners();
+
     // 푸시 토큰 수신
     PushNotifications.addListener('registration', async (token) => {
       console.log('[NotificationService] Push registration token:', token.value);
@@ -163,12 +217,6 @@ class NotificationService {
       console.log('[NotificationService] Push action:', action);
       this.handleNotificationAction(action.notification.data);
     });
-
-    // 로컬 알림 탭
-    LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
-      console.log('[NotificationService] Local notification action:', action);
-      this.handleNotificationAction(action.notification.extra);
-    });
   }
 
   /**
@@ -190,8 +238,8 @@ class NotificationService {
 
     switch (data.type) {
       case 'incoming_call':
-        // 전화 화면으로 이동
-        window.location.href = '/call';
+        // 전화 수신 화면으로 이동 (실제 전화 오는 것처럼)
+        window.location.href = '/incoming-call';
         break;
       case 'analysis_report':
         // 분석 결과 화면으로 이동
@@ -207,7 +255,7 @@ class NotificationService {
   }
 
   /**
-   * 예약 리마인더 설정
+   * 예약 리마인더 설정 (전화 스타일)
    * @param {Object} schedule - 일정 정보
    * @param {string} schedule.id - 알림 ID
    * @param {string} schedule.day - 요일 (sunday, monday, ... or sun, mon, ...)
@@ -231,7 +279,7 @@ class NotificationService {
     };
 
     const [hours, minutes] = schedule.time.split(':').map(Number);
-    const dayOfWeek = dayMap[schedule.day];
+    const dayOfWeek = dayMap[schedule.day.toLowerCase()];
 
     // 다음 발생 시간 계산
     const now = new Date();
@@ -241,30 +289,102 @@ class NotificationService {
     // 요일 맞추기
     const currentDay = now.getDay();
     let daysUntil = dayOfWeek - currentDay;
-    if (daysUntil <= 0 || (daysUntil === 0 && scheduleDate <= now)) {
+    if (daysUntil < 0 || (daysUntil === 0 && scheduleDate <= now)) {
       daysUntil += 7;
     }
     scheduleDate.setDate(scheduleDate.getDate() + daysUntil);
 
     const notificationId = this.generateNotificationId(schedule.id);
+    const tutorName = getFromStorage('tutorName', 'AI Tutor');
 
     await LocalNotifications.schedule({
       notifications: [{
         id: notificationId,
-        title: '📞 AI 전화 시간이에요!',
-        body: '지금 AI 튜터와 영어 회화를 시작해보세요.',
-        schedule: { at: scheduleDate, repeats: true },
-        channelId: CHANNEL_REMINDER,
+        title: `${tutorName}`,
+        body: 'AI 튜터가 전화를 걸고 있습니다...',
+        schedule: { at: scheduleDate, repeats: true, allowWhileIdle: true },
+        channelId: CHANNEL_AI_SPEAKING,
         sound: 'default',
+        importance: 5,  // MAX importance
+        visibility: 1,  // PUBLIC
+        ongoing: false,
+        autoCancel: true,
         extra: {
           type: 'incoming_call',
           scheduleId: schedule.id,
         },
-        actionTypeId: 'CALL_ACTION',
       }],
     });
 
-    console.log(`[NotificationService] Scheduled reminder for ${schedule.day} ${schedule.time}`);
+    console.log(`[NotificationService] Scheduled call for ${schedule.day} ${schedule.time} (${scheduleDate.toLocaleString()})`);
+    return scheduleDate;
+  }
+
+  /**
+   * 동기부여 알림 예약 (전화 10분 전)
+   * @param {Object} schedule - 일정 정보
+   * @param {string} schedule.id - 알림 ID
+   * @param {string} schedule.day - 요일
+   * @param {string} schedule.time - 시간 (HH:MM)
+   */
+  async scheduleMotivationReminder(schedule) {
+    if (!Capacitor.isNativePlatform()) {
+      console.log('[NotificationService] Cannot schedule on web');
+      return;
+    }
+
+    const reminderEnabled = getFromStorage('notification_reminder', true);
+    if (!reminderEnabled) {
+      console.log('[NotificationService] Reminder notifications disabled');
+      return;
+    }
+
+    const dayMap = {
+      sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6,
+      sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6
+    };
+
+    const [hours, minutes] = schedule.time.split(':').map(Number);
+    const dayOfWeek = dayMap[schedule.day.toLowerCase()];
+
+    // 다음 발생 시간 계산 (10분 전)
+    const now = new Date();
+    const reminderDate = new Date();
+    reminderDate.setHours(hours, minutes, 0, 0);
+    reminderDate.setMinutes(reminderDate.getMinutes() - 10); // 10분 전
+
+    // 요일 맞추기
+    const currentDay = now.getDay();
+    let daysUntil = dayOfWeek - currentDay;
+    if (daysUntil < 0 || (daysUntil === 0 && reminderDate <= now)) {
+      daysUntil += 7;
+    }
+    reminderDate.setDate(reminderDate.getDate() + daysUntil);
+
+    const notificationId = this.generateNotificationId(`motivation-${schedule.id}`);
+    const tutorName = getFromStorage('tutorName', 'AI Tutor');
+    const motivationMessage = this.getRandomMotivationMessage();
+
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: notificationId,
+        title: `🔔 10분 후 ${tutorName}와 통화 예정!`,
+        body: motivationMessage,
+        schedule: { at: reminderDate, repeats: true, allowWhileIdle: true },
+        channelId: CHANNEL_MOTIVATION,
+        sound: 'default',
+        importance: 4,
+        visibility: 1,
+        autoCancel: true,
+        extra: {
+          type: 'reminder',
+          scheduleId: schedule.id,
+        },
+      }],
+    });
+
+    console.log(`[NotificationService] Scheduled motivation for ${schedule.day} ${schedule.time} - 10min (${reminderDate.toLocaleString()})`);
+    return reminderDate;
   }
 
   /**
@@ -303,40 +423,78 @@ class NotificationService {
     let scheduledCount = 0;
     for (const [day, daySchedules] of Object.entries(schedules)) {
       for (const schedule of daySchedules) {
-        await this.scheduleReminder({
+        const scheduleInfo = {
           id: `${day}-${schedule.time}`,
           day,
           time: schedule.time,
-        });
+        };
+
+        // 전화 알림 예약
+        await this.scheduleReminder(scheduleInfo);
+
+        // 10분 전 동기부여 알림 예약
+        await this.scheduleMotivationReminder(scheduleInfo);
+
         scheduledCount++;
       }
     }
 
-    console.log(`[NotificationService] Synced ${scheduledCount} reminders`);
+    console.log(`[NotificationService] Synced ${scheduledCount} reminders (with motivation)`);
   }
 
   /**
-   * 수신 전화 스타일 알림 표시 (테스트용)
+   * 수신 전화 스타일 알림 표시 (테스트용 - 5초 후 발생)
    */
-  async showIncomingCallNotification() {
+  async showIncomingCallNotification(delaySeconds = 5) {
     if (!Capacitor.isNativePlatform()) {
       console.log('[NotificationService] Cannot show notification on web');
+      // 웹에서는 바로 전화 화면으로 이동
+      window.location.href = '/incoming-call';
       return;
     }
 
-    const speakingEnabled = getFromStorage('notification_speaking', true);
-    if (!speakingEnabled) {
-      console.log('[NotificationService] Speaking notifications disabled');
-      return;
-    }
+    const tutorName = getFromStorage('tutorName', 'AI Tutor');
+    const triggerTime = new Date(Date.now() + delaySeconds * 1000);
 
     await LocalNotifications.schedule({
       notifications: [{
         id: Math.floor(Math.random() * 100000),
-        title: '📞 AI 튜터가 전화를 걸고 있어요!',
-        body: '탭하여 영어 회화를 시작하세요',
+        title: `${tutorName}`,
+        body: 'AI 튜터가 전화를 걸고 있습니다...',
+        schedule: { at: triggerTime, allowWhileIdle: true },
         channelId: CHANNEL_AI_SPEAKING,
         sound: 'default',
+        importance: 5,
+        visibility: 1,
+        extra: {
+          type: 'incoming_call',
+        },
+      }],
+    });
+
+    console.log(`[NotificationService] Test call scheduled in ${delaySeconds} seconds`);
+  }
+
+  /**
+   * 즉시 전화 알림 (테스트용)
+   */
+  async triggerIncomingCallNow() {
+    if (!Capacitor.isNativePlatform()) {
+      window.location.href = '/incoming-call';
+      return;
+    }
+
+    const tutorName = getFromStorage('tutorName', 'AI Tutor');
+
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: Math.floor(Math.random() * 100000),
+        title: `${tutorName}`,
+        body: 'AI 튜터가 전화를 걸고 있습니다...',
+        channelId: CHANNEL_AI_SPEAKING,
+        sound: 'default',
+        importance: 5,
+        visibility: 1,
         extra: {
           type: 'incoming_call',
         },

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Mic, MicOff, Volume2, VolumeX, Captions, X } from 'lucide-react'
 import { sendMessage, textToSpeech, playAudioBase64, speechToText, startSession, endSession, saveMessage, translateText } from '../utils/api'
 import { getDeviceId } from '../utils/helpers'
-import { haptic } from '../utils/capacitor'
+import { haptic, configureStatusBar } from '../utils/capacitor'
 import { TranscribeStreamingClient } from '../utils/transcribeStreaming'
 import { useUserSettings } from '../context'
 

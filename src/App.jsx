@@ -13,6 +13,7 @@ import Result from './pages/Result'
 import Script from './pages/Script'
 import Analysis from './pages/Analysis'
 import Practice from './pages/Practice'
+import IncomingCall from './pages/IncomingCall'
 import { notificationService } from './services/notificationService'
 import { UserSettingsProvider } from './context'
 import { initializeApp, setupBackButton } from './utils/capacitor'
@@ -22,6 +23,16 @@ import './App.css'
 function AppContent() {
   const navigate = useNavigate()
   const location = useLocation()
+
+  // 네이티브에서 전화 수신 후 /call로 이동 처리
+  useEffect(() => {
+    const shouldNavigateToCall = localStorage.getItem('navigateToCall')
+    if (shouldNavigateToCall === 'true') {
+      localStorage.removeItem('navigateToCall')
+      console.log('[App] Navigating to /call from incoming call')
+      navigate('/call', { state: { fromIncomingCall: true } })
+    }
+  }, [navigate])
 
   // Android 뒤로가기 버튼 핸들링
   useEffect(() => {
@@ -66,6 +77,7 @@ function AppContent() {
       <Route path="/script" element={<Script />} />
       <Route path="/analysis" element={<Analysis />} />
       <Route path="/practice" element={<Practice />} />
+      <Route path="/incoming-call" element={<IncomingCall />} />
     </Routes>
   )
 }

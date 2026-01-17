@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4338ca</color>
+    <color name="colorPrimaryDark">#3730a3</color>
+    <color name="colorAccent">#6366f1</color>
+
+    <!-- 상태바 색상 -->
+    <color name="statusBarColor">#ffffff</color>
+</resources>

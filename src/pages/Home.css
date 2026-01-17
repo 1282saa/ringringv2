@@ -166,6 +166,23 @@
   transform: scale(0.98);
 }
 
+/* 테스트 버튼 */
+.test-call-btn {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: #6b7280;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+.test-call-btn:active {
+  background: #f3f4f6;
+}
+
 /* History Section */
 .history-section {
   display: flex;

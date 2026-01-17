@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { Plus, ChevronRight, X } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 import { notificationService } from '../services/notificationService'
+import { scheduleCall, cancelCall, ensurePermissions, isAndroid } from '../utils/callScheduler'
 
 const DAYS = [
   { id: 'sunday', label: '일요일', labelEn: 'Sunday', short: '일' },
@@ -24,6 +25,65 @@ const CALL_TYPES = [
   { id: 'roleplay', label: '롤플레잉', color: '#3b82f6', bgColor: '#dbeafe' },
 ]
 
+const DAY_MAPPING = {
+  'sunday': 0,
+  'monday': 1,
+  'tuesday': 2,
+  'wednesday': 3,
+  'thursday': 4,
+  'friday': 5,
+  'saturday': 6
+}
+
+// 네이티브 전화 예약 동기화 (컴포넌트 외부 함수)
+const syncNativeCallSchedules = async (allSchedules) => {
+  if (!isAndroid()) return
+
+  const tutorName = getFromStorage('tutorName', 'AI Tutor')
+
+  // 모든 일정에 대해 다음 발생 시간 계산 및 예약
+  let requestCode = 1000 // 예약 ID 시작값
+
+  for (const [dayId, daySchedules] of Object.entries(allSchedules)) {
+    const targetDayOfWeek = DAY_MAPPING[dayId]
+
+    for (const schedule of daySchedules) {
+      const [hours, minutes] = schedule.time.split(':').map(Number)
+
+      // 다음 발생 시간 계산
+      const now = new Date()
+      const nextOccurrence = new Date()
+      nextOccurrence.setHours(hours, minutes, 0, 0)
+
+      // 오늘의 요일
+      const currentDayOfWeek = now.getDay()
+
+      // 다음 해당 요일까지 남은 일수
+      let daysUntilTarget = targetDayOfWeek - currentDayOfWeek
+      if (daysUntilTarget < 0) {
+        daysUntilTarget += 7
+      }
+      // 오늘이 해당 요일이지만 시간이 지났으면 다음 주
+      if (daysUntilTarget === 0 && nextOccurrence <= now) {
+        daysUntilTarget = 7
+      }
+
+      nextOccurrence.setDate(now.getDate() + daysUntilTarget)
+
+      try {
+        await scheduleCall(nextOccurrence, tutorName, requestCode)
+        console.log(`[Schedule] Call scheduled for ${dayId} ${schedule.time}, next: ${nextOccurrence}`)
+      } catch (error) {
+        console.error(`[Schedule] Failed to schedule call:`, error)
+      }
+
+      requestCode++
+    }
+  }
+
+  console.log('[Schedule] All schedules synced')
+}
+
 function ScheduleSettings() {
   const navigate = useNavigate()
 
@@ -37,6 +97,11 @@ function ScheduleSettings() {
   useEffect(() => {
     const saved = getFromStorage('callSchedules', {})
     setSchedules(saved)
+
+    // 기존 일정이 있으면 네이티브 예약 동기화
+    if (Object.keys(saved).length > 0) {
+      syncNativeCallSchedules(saved)
+    }
   }, [])
 
   const openAddModal = (dayId) => {
@@ -59,6 +124,15 @@ function ScheduleSettings() {
   }
 
   const handleSave = async () => {
+    // Android에서 권한 확인
+    if (isAndroid()) {
+      const hasPermissions = await ensurePermissions()
+      if (!hasPermissions) {
+        alert('전화 예약을 위해 필요한 권한을 허용해주세요.')
+        return
+      }
+    }
+
     const newSchedules = { ...schedules }
     if (!newSchedules[editingDay]) {
       newSchedules[editingDay] = []
@@ -74,6 +148,9 @@ function ScheduleSettings() {
     setToStorage('callSchedules', newSchedules)
     setShowModal(false)
 
+    // 네이티브 전화 예약 동기화
+    await syncNativeCallSchedules(newSchedules)
+
     // 알림 리마인더 동기화
     await notificationService.syncReminders()
   }
@@ -88,6 +165,9 @@ function ScheduleSettings() {
     setSchedules(newSchedules)
     setToStorage('callSchedules', newSchedules)
     setShowModal(false)
+
+    // 네이티브 전화 예약 동기화
+    await syncNativeCallSchedules(newSchedules)
 
     // 알림 리마인더 동기화
     await notificationService.syncReminders()

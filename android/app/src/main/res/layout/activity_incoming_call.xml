@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1a1a2e">
+
+    <!-- 상단 튜터 정보 -->
+    <LinearLayout
+        android:id="@+id/tutorInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- 튜터 아바타 -->
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp">
+
+            <!-- 펄스 애니메이션 배경 -->
+            <View
+                android:id="@+id/pulseView"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:background="@drawable/circle_pulse" />
+
+            <!-- 아바타 원 -->
+            <TextView
+                android:id="@+id/avatarText"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_avatar"
+                android:gravity="center"
+                android:text="S"
+                android:textColor="#FFFFFF"
+                android:textSize="48sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- 튜터 이름 -->
+        <TextView
+            android:id="@+id/tutorName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="AI Tutor"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <!-- 부제목 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="AI English Tutor"
+            android:textColor="#9ca3af"
+            android:textSize="16sp" />
+
+        <!-- 상태 -->
+        <TextView
+            android:id="@+id/callStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="전화가 왔어요..."
+            android:textColor="#22d3ee"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <!-- 하단 버튼 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="80dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- 거절 버튼 -->
+        <LinearLayout
+            android:id="@+id/declineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="60dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/circle_decline"
+                android:padding="20dp"
+                android:src="@drawable/ic_call_end" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="거절"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- 받기 버튼 -->
+        <LinearLayout
+            android:id="@+id/answerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/circle_answer"
+                android:padding="20dp"
+                android:src="@drawable/ic_call" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="받기"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

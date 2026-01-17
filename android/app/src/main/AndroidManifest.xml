@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 기본 권한 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- 전화 스타일 알림 권한 -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- 정확한 알람 권한 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <!-- Foreground Service 권한 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- 배터리 최적화 무시 요청 권한 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,13 +32,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- MainActivity -->
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
-            android:exported="true">
+            android:exported="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,6 +49,54 @@
             </intent-filter>
 
         </activity>
+
+        <!-- 전화 수신 화면 Activity -->
+        <activity
+            android:name=".IncomingCallActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:launchMode="singleTop"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:screenOrientation="portrait">
+        </activity>
+
+        <!-- 전화 예약 Foreground Service -->
+        <service
+            android:name=".CallSchedulerService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="alarm_scheduling" />
+        </service>
+
+        <!-- 전화 알람 Receiver -->
+        <receiver
+            android:name=".CallAlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.aienglish.call.INCOMING_CALL" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 전화 거절 Receiver -->
+        <receiver
+            android:name=".CallDeclineReceiver"
+            android:exported="false" />
+
+        <!-- 부팅 완료 시 서비스 재시작 Receiver -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -35,9 +109,4 @@
         </provider>
     </application>
 
-    <!-- Permissions -->
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 </manifest>

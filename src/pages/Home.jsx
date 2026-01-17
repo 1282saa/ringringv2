@@ -7,6 +7,8 @@ import { getDeviceId, formatDuration } from '../utils/helpers'
 import { haptic } from '../utils/capacitor'
 import { useApiCall } from '../hooks'
 import { useUserSettings } from '../context'
+import { notificationService } from '../services/notificationService'
+import { scheduleTestCall, ensurePermissions, isAndroid } from '../utils/callScheduler'
 import './Home.css'
 
 function Home() {
@@ -106,6 +108,27 @@ function Home() {
     navigate('/call')
   }
 
+  // 테스트용: 5초 후 진짜 전화처럼 화면 띄우기
+  const handleTestCall = async () => {
+    haptic.medium()
+    try {
+      // Android에서 권한 확인 및 요청
+      if (isAndroid()) {
+        const hasPermissions = await ensurePermissions()
+        if (!hasPermissions) {
+          alert('필요한 권한을 허용해주세요.\n권한 허용 후 다시 시도해주세요.')
+          return
+        }
+      }
+
+      await scheduleTestCall(5, tutorName)
+      alert('5초 후 전화가 옵니다!\n앱을 나가거나 화면을 꺼도 전화가 옵니다.')
+    } catch (error) {
+      console.error('Test call error:', error)
+      alert('테스트 실패: ' + error.message)
+    }
+  }
+
   // 네비게이션 핸들러 (햅틱 포함)
   const handleNavClick = (action) => {
     haptic.light()
@@ -187,6 +210,11 @@ function Home() {
             {/* Call Button - 링글 스타일 */}
             <button className="call-btn" onClick={handleCall}>
               바로 전화하기
+            </button>
+
+            {/* 테스트 버튼 - 5초 후 전화 알림 */}
+            <button className="test-call-btn" onClick={handleTestCall}>
+              테스트: 5초 후 전화 오기
             </button>
           </>
         )}
