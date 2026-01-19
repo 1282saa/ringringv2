@@ -1,13 +1,12 @@
 /**
  * Home.jsx 스타일
- * 링글 스타일 홈 화면
+ * 미니멀 & 프리미엄 디자인
  */
 
 /* Base Layout */
 .ringle-home {
   min-height: 100vh;
-  background: #f9fafb;
-  /* Safe Area 적용 */
+  background: #fafafa;
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
@@ -16,100 +15,198 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Safe Area 적용: 상단 노치/다이나믹 아일랜드 */
-  padding: 18px 20px;
-  padding-top: calc(18px + env(safe-area-inset-top, 0px));
+  padding: 20px 20px 16px;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
   padding-left: calc(20px + env(safe-area-inset-left, 0px));
   padding-right: calc(20px + env(safe-area-inset-right, 0px));
-  background: white;
+  background: #fafafa;
 }
 
 .ringle-header h1 {
   font-size: 22px;
   font-weight: 700;
-  color: #1f2937;
+  color: #111;
+  letter-spacing: -0.5px;
 }
 
 .header-icons {
   display: flex;
-  gap: 18px;
   align-items: center;
+  gap: 10px;
 }
 
-.icon-btn {
-  background: none;
-  padding: 4px;
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #111;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: none;
+}
+
+.streak-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Profile Dropdown */
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  min-width: 200px;
+  z-index: 100;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-info {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-email {
+  font-size: 13px;
+  color: #666;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-menu-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.logout-menu-btn:active {
+  background: #f5f5f5;
 }
 
 /* Tabs */
 .tabs {
   display: flex;
-  background: white;
-  border-bottom: 1px solid #e8e8e8;
-  padding: 0 20px;
-  gap: 28px;
+  background: #fff;
+  margin: 0 16px;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
 }
 
 .tab {
-  padding: 16px 0;
-  font-size: 16px;
+  flex: 1;
+  padding: 10px 0;
+  font-size: 14px;
   font-weight: 500;
-  color: #9ca3af;
+  color: #888;
   background: none;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
 }
 
 .tab.active {
-  color: #1f2937;
+  color: #111;
+  background: #f0f0f0;
   font-weight: 600;
-  border-bottom-color: #1f2937;
 }
 
 /* Main Content */
 .main-content {
-  padding: 20px;
+  padding: 24px 20px;
 }
 
 /* Tutor Card */
 .tutor-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 48px 32px 40px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 24px 32px;
   text-align: center;
   margin-bottom: 16px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .tutor-card:active {
-  background: #f9fafb;
+  transform: scale(0.99);
+  background: #fafafa;
 }
 
 .tutor-avatar-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .tutor-avatar {
-  width: 160px;
-  height: 160px;
-  background: #8b5cf6;
+  width: 120px;
+  height: 120px;
+  background: #111;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 8px solid #e9e5fb;
-  box-shadow: 0 0 0 1px #d4d0f0;
 }
 
 .tutor-avatar span {
-  font-size: 72px;
+  font-size: 48px;
   font-weight: 600;
   color: white;
 }
@@ -117,52 +214,53 @@
 .tutor-tags {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
 .personality-tag {
-  padding: 8px 16px;
-  background: #f8f8f8;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #6b7280;
-  border: 1px solid #e8e8e8;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #666;
 }
 
 .tutor-name {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
+  color: #111;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 
 .tutor-info-tags {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .info-tag {
-  font-size: 16px;
-  color: #9ca3af;
+  font-size: 14px;
+  color: #999;
 }
 
 /* Call Button */
 .call-btn {
   width: 100%;
-  padding: 20px;
-  background: #5046e4;
+  padding: 18px;
+  background: #111;
   color: white;
+  border: none;
   border-radius: 14px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin-top: 8px;
-  box-shadow: 0 4px 12px rgba(80, 70, 228, 0.3);
+  transition: all 0.15s ease;
 }
 
 .call-btn:active {
-  background: #4338ca;
+  background: #333;
   transform: scale(0.98);
 }
 
@@ -171,41 +269,93 @@
   width: 100%;
   padding: 14px;
   background: transparent;
-  color: #6b7280;
-  border: 1px dashed #d1d5db;
-  border-radius: 10px;
+  color: #999;
+  border: 1px dashed #ddd;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 500;
   margin-top: 12px;
+  transition: all 0.15s ease;
 }
 
 .test-call-btn:active {
-  background: #f3f4f6;
+  background: #f5f5f5;
+  color: #666;
 }
 
 /* History Section */
 .history-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+}
+
+/* Weekly Progress Card - 게이미피케이션 */
+.weekly-progress-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+
+.weekly-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.weekly-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+}
+
+.weekly-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+}
+
+.progress-bar-wrapper {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #111;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.weekly-message {
+  font-size: 13px;
+  color: #888;
+}
+
+.weekly-message .achieved {
+  color: #111;
+  font-weight: 600;
 }
 
 /* Summary Card */
 .summary-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
 }
 
 .summary-divider-line {
-  width: calc(100% + 40px);
-  margin-left: -20px;
-  height: 8px;
-  background: #f3f4f6;
+  display: none;
 }
 
 .summary-item {
@@ -215,27 +365,27 @@
 
 .summary-value {
   display: block;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #6366f1;
-  margin-bottom: 6px;
+  color: #111;
+  margin-bottom: 4px;
 }
 
 .summary-label {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: 11px;
+  color: #999;
 }
 
 .summary-divider {
   width: 1px;
-  height: 48px;
-  background: #e5e7eb;
+  height: 36px;
+  background: #eee;
 }
 
 /* Notice Banner */
 .notice-banner {
-  background: #f8f7ff;
-  border-radius: 12px;
+  background: #fff;
+  border-radius: 14px;
   padding: 16px;
   display: flex;
   gap: 12px;
@@ -243,7 +393,7 @@
 }
 
 .notice-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .notice-text {
@@ -251,15 +401,15 @@
 }
 
 .notice-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 4px;
+  color: #111;
+  margin-bottom: 2px;
 }
 
 .notice-desc {
   font-size: 13px;
-  color: #6b7280;
+  color: #888;
 }
 
 /* Month Navigator */
@@ -271,20 +421,21 @@
 }
 
 .month-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  color: #111;
 }
 
 .month-arrows {
   display: flex;
-  gap: 8px;
+  gap: 4px;
 }
 
 .month-arrows button {
   background: none;
+  border: none;
   padding: 4px;
-  color: #6b7280;
+  color: #888;
 }
 
 /* Filter Checkbox */
@@ -299,118 +450,189 @@
 .checkbox {
   width: 20px;
   height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 4px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
 }
 
 .checkbox.checked {
-  background: #5046e4;
-  border-color: #5046e4;
+  background: #111;
+  border-color: #111;
   color: white;
 }
 
 .filter-checkbox span {
   font-size: 14px;
-  color: #374151;
+  color: #666;
 }
 
-/* Loading Sessions */
-.loading-sessions {
+/* Call Card V2 - 개선된 디자인 */
+.call-card-v2 {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 10px;
+}
+
+.call-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.call-card-info {
+  flex: 1;
+}
+
+.call-date-v2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.call-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.call-stat {
+  font-size: 12px;
+  color: #888;
+  background: #f5f5f5;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* 원클릭 복습 버튼 */
+.quick-review-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 40px 20px;
-  background: white;
-  border-radius: 12px;
-  color: #6b7280;
-  font-size: 14px;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
 }
 
-/* Call Card */
+.quick-review-btn:active {
+  background: #333;
+  transform: scale(0.98);
+}
+
+/* 액션 칩 */
+.call-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.call-action-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 14px;
+  background: #fafafa;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.15s ease;
+}
+
+.call-action-chip:active {
+  background: #f0f0f0;
+}
+
+/* Legacy Call Card (하위호환) */
 .call-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 10px;
 }
 
 .call-type-tag {
   display: inline-block;
   padding: 4px 10px;
-  background: #f3f4f6;
-  border-radius: 4px;
+  background: #f5f5f5;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-  color: #6b7280;
+  color: #888;
   margin-bottom: 10px;
 }
 
 .call-date {
   font-size: 15px;
   font-weight: 600;
-  color: #374151;
+  color: #111;
   margin-bottom: 4px;
 }
 
 .call-words {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 13px;
+  color: #888;
   margin-bottom: 16px;
 }
 
 .word-count-ok {
-  color: #1f2937;
+  color: #111;
+  font-weight: 500;
 }
 
 .word-count-low {
-  color: #9ca3af;
+  color: #bbb;
 }
 
 .word-threshold {
-  color: #9ca3af;
+  color: #ccc;
 }
 
 /* Call Buttons */
 .call-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .call-btn-item {
   width: 100%;
-  padding: 16px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  padding: 14px;
+  background: #fafafa;
+  border: none;
   border-radius: 12px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  color: #1f2937;
+  color: #333;
   text-align: center;
+  transition: all 0.15s ease;
 }
 
 .call-btn-item:active {
-  background: #f9fafb;
+  background: #f0f0f0;
 }
 
 /* Empty History */
 .empty-history {
   text-align: center;
   padding: 60px 20px;
-  background: white;
-  border-radius: 12px;
+  background: #fff;
+  border-radius: 16px;
 }
 
 .empty-icon {
-  width: 80px;
-  height: 80px;
-  background: #f3f4f6;
+  width: 72px;
+  height: 72px;
+  background: #f5f5f5;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -419,12 +641,25 @@
 }
 
 .empty-history p {
-  font-size: 16px;
-  color: #374151;
+  font-size: 15px;
+  color: #333;
   margin-bottom: 4px;
 }
 
 .empty-history .sub {
+  font-size: 13px;
+  color: #999;
+}
+
+/* Loading */
+.loading-sessions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 16px;
+  color: #888;
   font-size: 14px;
-  color: #9ca3af;
 }

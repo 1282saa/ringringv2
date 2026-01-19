@@ -87,7 +87,7 @@ export function Card({
         }
 
         .card-clickable:hover {
-          border-color: #5046e4;
+          border-color: #111;
         }
 
         .card-clickable:active {
@@ -124,7 +124,7 @@ export function Card({
 /**
  * 통계 카드 (숫자 표시용)
  */
-export function StatCard({ label, value, sublabel, color = '#5046e4' }) {
+export function StatCard({ label, value, sublabel, color = '#111' }) {
   return (
     <div className="stat-card">
       <span className="stat-label">{label}</span>

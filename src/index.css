@@ -5,11 +5,11 @@
 }
 
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --success: #10b981;
-  --warning: #f59e0b;
+  --primary: #111;
+  --primary-dark: #000;
+  --primary-light: #333;
+  --success: #111;
+  --warning: #666;
   --danger: #ef4444;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;

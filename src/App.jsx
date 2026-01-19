@@ -17,6 +17,9 @@ import IncomingCall from './pages/IncomingCall'
 import { notificationService } from './services/notificationService'
 import { UserSettingsProvider } from './context'
 import { initializeApp, setupBackButton } from './utils/capacitor'
+// Auth imports
+import { AuthProvider, ProtectedRoute, PublicRoute } from './auth'
+import { Login, Signup, VerifyEmail, ForgotPassword, AuthCallback } from './pages/auth'
 import './App.css'
 
 // 뒤로가기 핸들링을 위한 내부 컴포넌트
@@ -64,20 +67,28 @@ function AppContent() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/settings/tutor" element={<TutorSettings />} />
-      <Route path="/settings/schedule" element={<ScheduleSettings />} />
-      <Route path="/settings/curriculum" element={<CurriculumSettings />} />
-      <Route path="/settings/roleplay" element={<RoleplaySettings />} />
-      <Route path="/settings/roleplay/category" element={<RoleplayCategory />} />
-      <Route path="/settings/notifications" element={<NotificationSettings />} />
-      <Route path="/call" element={<Call />} />
-      <Route path="/result" element={<Result />} />
-      <Route path="/script" element={<Script />} />
-      <Route path="/analysis" element={<Analysis />} />
-      <Route path="/practice" element={<Practice />} />
-      <Route path="/incoming-call" element={<IncomingCall />} />
+      {/* Public auth routes */}
+      <Route path="/auth/login" element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/auth/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+      <Route path="/auth/verify-email" element={<PublicRoute><VerifyEmail /></PublicRoute>} />
+      <Route path="/auth/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+
+      {/* Protected routes */}
+      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/settings/tutor" element={<ProtectedRoute><TutorSettings /></ProtectedRoute>} />
+      <Route path="/settings/schedule" element={<ProtectedRoute><ScheduleSettings /></ProtectedRoute>} />
+      <Route path="/settings/curriculum" element={<ProtectedRoute><CurriculumSettings /></ProtectedRoute>} />
+      <Route path="/settings/roleplay" element={<ProtectedRoute><RoleplaySettings /></ProtectedRoute>} />
+      <Route path="/settings/roleplay/category" element={<ProtectedRoute><RoleplayCategory /></ProtectedRoute>} />
+      <Route path="/settings/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+      <Route path="/call" element={<ProtectedRoute><Call /></ProtectedRoute>} />
+      <Route path="/result" element={<ProtectedRoute><Result /></ProtectedRoute>} />
+      <Route path="/script" element={<ProtectedRoute><Script /></ProtectedRoute>} />
+      <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+      <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
+      <Route path="/incoming-call" element={<ProtectedRoute><IncomingCall /></ProtectedRoute>} />
     </Routes>
   )
 }
@@ -93,11 +104,13 @@ function App() {
   }, [])
 
   return (
-    <UserSettingsProvider>
-      <div className="app">
-        <AppContent />
-      </div>
-    </UserSettingsProvider>
+    <AuthProvider>
+      <UserSettingsProvider>
+        <div className="app">
+          <AppContent />
+        </div>
+      </UserSettingsProvider>
+    </AuthProvider>
   )
 }
 

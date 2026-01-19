@@ -280,7 +280,7 @@ function ScheduleSettings() {
       <style>{`
         .schedule-settings-page {
           min-height: 100vh;
-          background: #ffffff;
+          background: #fafafa;
           display: flex;
           flex-direction: column;
         }
@@ -289,14 +289,14 @@ function ScheduleSettings() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px 20px;
-          background: white;
+          padding: 20px;
+          background: #fafafa;
         }
 
         .page-header h1 {
           font-size: 18px;
-          font-weight: 600;
-          color: #1a1a1a;
+          font-weight: 700;
+          color: #111;
         }
 
         .close-btn {
@@ -307,12 +307,12 @@ function ScheduleSettings() {
         }
 
         .page-desc {
-          padding: 20px 20px 12px;
+          padding: 0 20px 16px;
         }
 
         .page-desc p {
           font-size: 14px;
-          color: #666;
+          color: #888;
           line-height: 1.5;
         }
 
@@ -330,13 +330,13 @@ function ScheduleSettings() {
           align-items: center;
           justify-content: space-between;
           padding: 16px 0;
-          border-bottom: 1px solid #e8e8e8;
+          border-bottom: 1px solid #eee;
         }
 
         .day-name {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 500;
-          color: #1a1a1a;
+          color: #111;
         }
 
         .add-btn {
@@ -362,15 +362,15 @@ function ScheduleSettings() {
         }
 
         .type-badge {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 500;
-          padding: 6px 12px;
-          border-radius: 20px;
+          padding: 5px 10px;
+          border-radius: 6px;
         }
 
         .schedule-time {
-          font-size: 16px;
-          color: #1a1a1a;
+          font-size: 15px;
+          color: #111;
           font-weight: 600;
           letter-spacing: 0.5px;
         }
@@ -382,7 +382,7 @@ function ScheduleSettings() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.4);
           display: flex;
           align-items: flex-end;
           justify-content: center;
@@ -390,12 +390,12 @@ function ScheduleSettings() {
         }
 
         .modal-sheet {
-          background: white;
+          background: #fff;
           border-radius: 20px 20px 0 0;
           width: 100%;
           max-width: 480px;
           padding: 24px 20px 32px;
-          animation: slideUp 0.3s ease;
+          animation: slideUp 0.2s ease;
         }
 
         @keyframes slideUp {
@@ -411,9 +411,9 @@ function ScheduleSettings() {
         }
 
         .modal-header h3 {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1a1a1a;
+          font-size: 17px;
+          font-weight: 700;
+          color: #111;
         }
 
         .close-btn {
@@ -423,26 +423,26 @@ function ScheduleSettings() {
 
         .type-selector {
           display: flex;
-          gap: 10px;
+          gap: 8px;
           margin-bottom: 24px;
         }
 
         .type-option {
           flex: 1;
-          padding: 14px;
-          border: 1.5px solid #e5e7eb;
-          border-radius: 24px;
-          font-size: 15px;
+          padding: 12px;
+          border: 1.5px solid #eee;
+          border-radius: 12px;
+          font-size: 14px;
           font-weight: 500;
-          color: #6b7280;
-          background: white;
-          transition: all 0.2s;
+          color: #888;
+          background: #fff;
+          transition: all 0.15s ease;
         }
 
         .type-option.selected {
-          border-color: transparent;
-          color: #1f2937;
-          background: #e0e7ff;
+          border-color: #111;
+          color: #111;
+          background: #fff;
         }
 
         .time-picker-wrap {
@@ -451,43 +451,44 @@ function ScheduleSettings() {
 
         .time-picker {
           width: 100%;
-          padding: 20px 16px;
+          padding: 18px 16px;
           border: none;
-          border-radius: 12px;
+          border-radius: 14px;
           font-size: 20px;
-          font-weight: 500;
+          font-weight: 600;
           text-align: center;
           box-sizing: border-box;
-          background: #f3f4f6;
-          color: #1a1a1a;
+          background: #f5f5f5;
+          color: #111;
         }
 
         .time-picker:focus {
           outline: none;
-          background: #e5e7eb;
+          background: #eee;
         }
 
         .primary-btn {
           width: 100%;
           padding: 16px;
-          background: #4338ca;
+          background: #111;
           color: white;
-          border-radius: 12px;
-          font-size: 16px;
+          border-radius: 14px;
+          font-size: 15px;
           font-weight: 600;
           margin-bottom: 12px;
+          transition: all 0.15s ease;
         }
 
         .primary-btn:active {
-          background: #3730a3;
+          background: #333;
         }
 
         .delete-btn {
           width: 100%;
           padding: 14px;
           background: none;
-          color: #374151;
-          font-size: 15px;
+          color: #999;
+          font-size: 14px;
           font-weight: 500;
         }
       `}</style>

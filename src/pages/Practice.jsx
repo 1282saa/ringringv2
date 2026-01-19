@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { X, ArrowLeft, Volume2, Headphones, Mic, Check } from 'lucide-react'
+import { X, ArrowLeft, Volume2, Headphones, Mic, Check, CheckCircle } from 'lucide-react'
 import { textToSpeech, playAudioBase64, translateText, uploadPracticeAudio } from '../utils/api'
 import { getDeviceId } from '../utils/helpers'
 
@@ -442,7 +442,7 @@ function Practice() {
           <button
             style={{
               ...styles.micButton,
-              background: isRecording ? '#ef4444' : '#5046e4'
+              background: isRecording ? '#ef4444' : '#111'
             }}
             onClick={handleMicToggle}
           >
@@ -603,7 +603,7 @@ function Practice() {
           <button
             style={{
               ...styles.micButton,
-              background: isRecording ? '#ef4444' : '#5046e4'
+              background: isRecording ? '#ef4444' : '#111'
             }}
             onClick={handleMicToggle}
           >
@@ -689,7 +689,7 @@ function Practice() {
         <div style={styles.completeContent}>
           {/* Celebration Icon */}
           <div style={styles.celebrationIcon}>
-            <span style={styles.celebrationEmoji}>🎉</span>
+            <CheckCircle size={48} color="#fff" />
           </div>
 
           <h1 style={styles.completeTitle}>마무리까지 완벽해요!</h1>
@@ -754,7 +754,7 @@ const styles = {
   },
   progressFill: {
     height: '100%',
-    background: '#5046e4',
+    background: '#111',
     borderRadius: '3px',
     transition: 'width 0.3s ease',
   },
@@ -790,7 +790,7 @@ const styles = {
   },
   translationText: {
     fontSize: '15px',
-    color: '#8b5cf6',
+    color: '#666',
     lineHeight: '1.5',
   },
 
@@ -939,7 +939,7 @@ const styles = {
   primaryButton: {
     width: '100%',
     padding: '18px',
-    background: '#5046e4',
+    background: '#111',
     color: 'white',
     border: 'none',
     borderRadius: '12px',
@@ -950,7 +950,7 @@ const styles = {
   primaryButtonLarge: {
     width: '100%',
     padding: '18px',
-    background: '#5046e4',
+    background: '#111',
     color: 'white',
     border: 'none',
     borderRadius: '12px',
@@ -1002,7 +1002,7 @@ const styles = {
   bottomSheetIcon: {
     width: '32px',
     height: '32px',
-    background: '#8b5cf6',
+    background: '#111',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
@@ -1011,7 +1011,7 @@ const styles = {
   bottomSheetTitle: {
     fontSize: '20px',
     fontWeight: '700',
-    color: '#8b5cf6',
+    color: '#111',
   },
   bottomSheetSubtitle: {
     fontSize: '15px',
@@ -1022,7 +1022,7 @@ const styles = {
   bottomSheetButton: {
     width: '100%',
     padding: '18px',
-    background: '#5046e4',
+    background: '#111',
     color: 'white',
     border: 'none',
     borderRadius: '12px',

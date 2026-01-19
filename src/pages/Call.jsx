@@ -114,6 +114,16 @@ function Call() {
     return () => clearInterval(timerRef.current)
   }, [])
 
+  // 페이지 이탈 시 TTS 강제 중지
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel()
+        console.log('[TTS] Speech synthesis cancelled on unmount')
+      }
+    }
+  }, [])
+
   // 마이크 및 음성 인식 초기화 (StrictMode에서 중복 초기화 방지)
   useEffect(() => {
     if (audioInitializedRef.current) return
@@ -158,6 +168,11 @@ function Call() {
   }
 
   const cleanupAudio = () => {
+    // TTS 음성 중지
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel()
+    }
+
     // Streaming STT 정리
     if (streamingClientRef.current) {
       streamingClientRef.current.stop()
@@ -978,7 +993,7 @@ function Call() {
       <style>{`
         .ringle-call {
           min-height: 100vh;
-          background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+          background: #111;
           display: flex;
           flex-direction: column;
         }
@@ -994,7 +1009,7 @@ function Call() {
         .tutor-avatar {
           width: 72px;
           height: 72px;
-          background: #8b5cf6;
+          background: #fff;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -1005,7 +1020,7 @@ function Call() {
         .tutor-avatar span {
           font-size: 28px;
           font-weight: 600;
-          color: white;
+          color: #111;
         }
 
         .tutor-name {
@@ -1077,7 +1092,7 @@ function Call() {
           gap: 12px;
           margin-top: 20px;
           padding: 12px 24px;
-          background: rgba(99, 102, 241, 0.3);
+          background: rgba(255, 255, 255, 0.15);
           border-radius: 12px;
         }
 
@@ -1206,7 +1221,7 @@ function Call() {
         }
 
         .control-btn.active {
-          color: #8b5cf6;
+          color: #fff;
         }
 
         .control-btn span {
@@ -1295,8 +1310,8 @@ function Call() {
         }
 
         .modal-options .option-item.selected {
-          background: #eff6ff;
-          color: #2563eb;
+          background: #f5f5f5;
+          color: #111;
           font-weight: 500;
         }
       `}</style>

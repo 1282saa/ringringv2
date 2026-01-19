@@ -162,7 +162,7 @@ function CurriculumSettings() {
                 <span className="topic-icon">
                   {(() => {
                     const IconComponent = ICON_MAP[topic.icon]
-                    return IconComponent ? <IconComponent size={24} color={isSelected ? '#6366f1' : '#9ca3af'} /> : null
+                    return IconComponent ? <IconComponent size={22} color={isSelected ? '#111' : '#bbb'} /> : null
                   })()}
                 </span>
                 <span className="topic-label">{topic.label}</span>
@@ -201,7 +201,7 @@ function CurriculumSettings() {
       <style>{`
         .curriculum-settings-page {
           min-height: 100vh;
-          background: #f7f7f8;
+          background: #fafafa;
           display: flex;
           flex-direction: column;
           padding-bottom: 100px;
@@ -211,14 +211,14 @@ function CurriculumSettings() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 16px 20px;
-          background: white;
+          padding: 20px;
+          background: #fafafa;
         }
 
         .page-header h1 {
           font-size: 18px;
-          font-weight: 600;
-          color: #1a1a1a;
+          font-weight: 700;
+          color: #111;
         }
 
         .close-btn {
@@ -229,12 +229,12 @@ function CurriculumSettings() {
         }
 
         .page-desc {
-          padding: 20px 20px 16px;
+          padding: 0 20px 16px;
         }
 
         .page-desc p {
           font-size: 14px;
-          color: #666;
+          color: #888;
           line-height: 1.6;
           margin-bottom: 4px;
         }
@@ -244,42 +244,42 @@ function CurriculumSettings() {
         }
 
         .topic-card {
-          background: white;
+          background: #fff;
           border-radius: 16px;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
           overflow: hidden;
           border: 2px solid transparent;
-          transition: all 0.2s;
+          transition: all 0.15s ease;
         }
 
         .topic-card.selected {
-          border-color: #6366f1;
-          background: #f5f3ff;
+          border-color: #111;
+          background: #fff;
         }
 
         .topic-header {
           display: flex;
           align-items: center;
-          padding: 18px 16px;
+          padding: 16px;
           cursor: pointer;
           gap: 12px;
         }
 
         .checkbox {
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           border-radius: 6px;
-          border: 2px solid #d0d0d0;
+          border: 2px solid #ddd;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.2s;
+          transition: all 0.15s ease;
           flex-shrink: 0;
         }
 
         .checkbox.checked {
-          background: #6366f1;
-          border-color: #6366f1;
+          background: #111;
+          border-color: #111;
         }
 
         .topic-icon {
@@ -290,9 +290,9 @@ function CurriculumSettings() {
 
         .topic-label {
           flex: 1;
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 500;
-          color: #1a1a1a;
+          color: #111;
         }
 
         .expand-icon {
@@ -308,13 +308,13 @@ function CurriculumSettings() {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 8px 0;
-          font-size: 14px;
-          color: #666;
+          padding: 6px 0;
+          font-size: 13px;
+          color: #888;
         }
 
         .bullet {
-          color: #6366f1;
+          color: #111;
         }
 
         /* 하단 버튼 */
@@ -324,8 +324,7 @@ function CurriculumSettings() {
           left: 0;
           right: 0;
           padding: 16px 20px 24px;
-          background: white;
-          border-top: 1px solid #e8e8e8;
+          background: #fafafa;
           max-width: 480px;
           margin: 0 auto;
         }
@@ -333,15 +332,16 @@ function CurriculumSettings() {
         .primary-btn {
           width: 100%;
           padding: 16px;
-          background: #6366f1;
+          background: #111;
           color: white;
-          border-radius: 12px;
-          font-size: 16px;
+          border-radius: 14px;
+          font-size: 15px;
           font-weight: 600;
+          transition: all 0.15s ease;
         }
 
         .primary-btn:active {
-          background: #4f46e5;
+          background: #333;
         }
       `}</style>
     </div>

@@ -208,7 +208,7 @@ export function SettingToggle({
         }
 
         .toggle-switch.on {
-          background: #5046e4;
+          background: #111;
         }
 
         .toggle-switch:disabled {
@@ -281,7 +281,7 @@ export function SettingOptions({ options, value, onChange }) {
 
         .option-btn.selected {
           background: #ede9fe;
-          border-color: #5046e4;
+          border-color: #111;
         }
 
         .option-label {
@@ -296,7 +296,7 @@ export function SettingOptions({ options, value, onChange }) {
         }
 
         .option-btn.selected .option-label {
-          color: #5046e4;
+          color: #111;
         }
       `}</style>
     </div>

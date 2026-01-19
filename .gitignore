@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android signing (IMPORTANT: Never commit these!)
+android/app/release-key.jks
+android/app/keystore.properties
+*.jks
+*.keystore

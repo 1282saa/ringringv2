@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings Screen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 360px;
+            height: 800px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #fafafa;
+            overflow: hidden;
+        }
+        .status-bar {
+            height: 44px;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            gap: 12px;
+        }
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .tutor-preview {
+            text-align: center;
+            padding: 24px 20px;
+            background: #fff;
+            margin: 0 20px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+        }
+        .tutor-avatar {
+            width: 72px;
+            height: 72px;
+            background: #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+        .tutor-avatar span {
+            font-size: 28px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .tutor-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 4px;
+        }
+        .tutor-info {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .settings-section {
+            padding: 0 20px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .option-group {
+            margin-bottom: 24px;
+        }
+        .option-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .option-grid {
+            display: flex;
+            gap: 10px;
+        }
+        .option-item {
+            flex: 1;
+            padding: 14px 12px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            text-align: center;
+            background: #fff;
+            font-size: 14px;
+            color: #666;
+        }
+        .option-item.selected {
+            border-color: #111;
+            background: #111;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .option-grid.cols-3 .option-item {
+            padding: 12px 8px;
+            font-size: 13px;
+        }
+
+        .slider-group {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .slider-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        .slider-value {
+            font-size: 14px;
+            color: #888;
+        }
+        .slider-track {
+            height: 6px;
+            background: #e5e5e5;
+            border-radius: 3px;
+            position: relative;
+        }
+        .slider-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background: #111;
+            border-radius: 3px;
+        }
+        .slider-thumb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #111;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>9:41</span>
+        <div style="display: flex; gap: 8px;">
+            <span>WiFi</span>
+            <span>100%</span>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </div>
+        <h1>튜터 설정</h1>
+    </div>
+
+    <div class="tutor-preview">
+        <div class="tutor-avatar">
+            <span>E</span>
+        </div>
+        <h2 class="tutor-name">Emma</h2>
+        <p class="tutor-info">미국식 발음 · 여성</p>
+    </div>
+
+    <div class="settings-section">
+        <div class="option-group">
+            <span class="option-label">발음 스타일</span>
+            <div class="option-grid">
+                <div class="option-item selected">미국식</div>
+                <div class="option-item">영국식</div>
+                <div class="option-item">호주식</div>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <span class="option-label">성별</span>
+            <div class="option-grid">
+                <div class="option-item selected">여성</div>
+                <div class="option-item">남성</div>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <span class="option-label">난이도</span>
+            <div class="option-grid cols-3">
+                <div class="option-item">초급</div>
+                <div class="option-item selected">중급</div>
+                <div class="option-item">고급</div>
+            </div>
+        </div>
+
+        <div class="slider-group">
+            <div class="slider-header">
+                <span class="slider-label">말하기 속도</span>
+                <span class="slider-value">보통</span>
+            </div>
+            <div class="slider-track">
+                <div class="slider-fill"></div>
+                <div class="slider-thumb"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

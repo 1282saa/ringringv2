@@ -9,16 +9,19 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, X, Check, Flame, Menu } from 'lucide-react'
+import { ChevronRight, X, Check, Flame, User, LogOut } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 import { haptic } from '../utils/capacitor'
 import { TUTORS } from '../constants'
+import { useAuth } from '../auth'
 
 function Settings() {
   const navigate = useNavigate()
+  const { user, signOut } = useAuth()
 
   // 설정 상태
   const [userName, setUserName] = useState('')
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showNameModal, setShowNameModal] = useState(false)
   const [tempName, setTempName] = useState('')
   const [videoReviewAlert, setVideoReviewAlert] = useState(true)
@@ -91,18 +94,54 @@ function Settings() {
     action()
   }
 
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    haptic.medium()
+    setShowProfileMenu(false)
+    try {
+      await signOut()
+      navigate('/auth/login', { replace: true })
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+  }
+
   return (
     <div className="settings-page">
       {/* 상단 헤더 */}
       <header className="main-header">
         <h1>AI 전화</h1>
         <div className="header-icons">
-          <button className="icon-btn">
-            <Flame size={22} color="#22d3ee" fill="#22d3ee" />
+          <button className="streak-badge">
+            <Flame size={18} color="#fff" fill="#fff" />
+            <span className="streak-count">3</span>
           </button>
-          <button className="icon-btn">
-            <Menu size={22} color="#1f2937" />
-          </button>
+          <div className="profile-wrapper">
+            <button
+              className="profile-btn"
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+            >
+              {user?.attributes?.picture ? (
+                <img src={user.attributes.picture} alt="" className="profile-img" />
+              ) : (
+                <User size={20} color="#666" />
+              )}
+            </button>
+            {showProfileMenu && (
+              <>
+                <div className="profile-backdrop" onClick={() => setShowProfileMenu(false)} />
+                <div className="profile-menu">
+                  <div className="profile-info">
+                    <span className="profile-email">{user?.email || '사용자'}</span>
+                  </div>
+                  <button className="logout-menu-btn" onClick={handleLogout}>
+                    <LogOut size={16} />
+                    <span>로그아웃</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -237,7 +276,7 @@ function Settings() {
       <style>{`
         .settings-page {
           min-height: 100vh;
-          background: #ffffff;
+          background: #fafafa;
           display: flex;
           flex-direction: column;
           padding-bottom: 24px;
@@ -248,58 +287,159 @@ function Settings() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 16px 20px 12px;
-          background: white;
+          padding: 20px 20px 16px;
+          background: #fafafa;
         }
 
         .main-header h1 {
           font-size: 22px;
           font-weight: 700;
-          color: #1a1a1a;
+          color: #111;
+          letter-spacing: -0.5px;
         }
 
         .header-icons {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 10px;
         }
 
-        .icon-btn {
-          background: none;
-          padding: 4px;
+        .streak-badge {
           display: flex;
           align-items: center;
+          gap: 4px;
+          background: #111;
+          padding: 6px 12px;
+          border-radius: 20px;
+          border: none;
+        }
+
+        .streak-count {
+          font-size: 13px;
+          font-weight: 600;
+          color: white;
+        }
+
+        /* Profile Dropdown */
+        .profile-wrapper {
+          position: relative;
+        }
+
+        .profile-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: #f0f0f0;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          overflow: hidden;
+        }
+
+        .profile-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .profile-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 99;
+        }
+
+        .profile-menu {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          background: #fff;
+          border-radius: 14px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+          min-width: 200px;
+          z-index: 100;
+          overflow: hidden;
+          animation: profileFadeIn 0.15s ease;
+        }
+
+        @keyframes profileFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .profile-info {
+          padding: 14px 16px;
+          border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-email {
+          font-size: 13px;
+          color: #666;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .logout-menu-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 14px 16px;
+          background: none;
+          border: none;
+          font-size: 14px;
+          color: #666;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        .logout-menu-btn:active {
+          background: #f5f5f5;
         }
 
         /* 탭 네비게이션 */
         .tab-nav {
           display: flex;
-          background: white;
-          border-bottom: 1px solid #e8e8e8;
-          padding: 0 20px;
-          gap: 24px;
+          background: #fff;
+          margin: 0 16px;
+          padding: 4px;
+          border-radius: 12px;
+          gap: 4px;
         }
 
         .tab-item {
-          padding: 14px 0;
-          font-size: 15px;
+          flex: 1;
+          padding: 10px 0;
+          font-size: 14px;
           font-weight: 500;
           color: #888;
           background: none;
-          border-bottom: 2px solid transparent;
-          transition: all 0.2s;
+          border-radius: 10px;
+          transition: all 0.2s ease;
         }
 
         .tab-item.active {
-          color: #1a1a1a;
+          color: #111;
+          background: #f0f0f0;
           font-weight: 600;
-          border-bottom-color: #1a1a1a;
         }
 
         /* 페이지 콘텐츠 */
         .page-content {
           flex: 1;
-          padding: 20px;
+          padding: 24px 20px;
           overflow-y: auto;
         }
 
@@ -309,39 +449,41 @@ function Settings() {
         }
 
         .section-label {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
-          color: #1a1a1a;
-          margin-bottom: 10px;
+          color: #999;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 12px;
           padding-left: 4px;
-          letter-spacing: -0.3px;
         }
 
         .settings-list {
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
 
         .settings-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 18px 20px;
-          background: #f8f7ff;
-          border-radius: 12px;
+          padding: 16px 18px;
+          background: #fff;
+          border-radius: 14px;
           cursor: pointer;
-          transition: background 0.15s;
+          transition: all 0.15s ease;
         }
 
         .settings-item:active {
-          background: #f0eeff;
+          background: #f5f5f5;
+          transform: scale(0.99);
         }
 
         .item-label {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 500;
-          color: #1a1a1a;
+          color: #222;
         }
 
         .item-right {
@@ -351,7 +493,7 @@ function Settings() {
         }
 
         .item-value {
-          font-size: 15px;
+          font-size: 14px;
           color: #888;
         }
 
@@ -361,28 +503,28 @@ function Settings() {
         }
 
         .toggle-track {
-          width: 52px;
-          height: 32px;
-          background: #d0d0d0;
-          border-radius: 16px;
+          width: 48px;
+          height: 28px;
+          background: #ddd;
+          border-radius: 14px;
           position: relative;
-          transition: background 0.25s;
+          transition: background 0.2s ease;
         }
 
         .toggle-track.active {
-          background: #6366f1;
+          background: #111;
         }
 
         .toggle-thumb {
-          width: 28px;
-          height: 28px;
+          width: 24px;
+          height: 24px;
           background: white;
           border-radius: 50%;
           position: absolute;
           top: 2px;
           left: 2px;
-          transition: transform 0.25s;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+          transition: transform 0.2s ease;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
         }
 
         .toggle-track.active .toggle-thumb {
@@ -487,14 +629,14 @@ function Settings() {
         }
 
         .name-input:focus {
-          border-color: #6366f1;
+          border-color: #111;
           outline: none;
         }
 
         .primary-btn {
           width: 100%;
           padding: 16px;
-          background: #6366f1;
+          background: #111;
           color: white;
           border-radius: 12px;
           font-size: 16px;
@@ -502,8 +644,9 @@ function Settings() {
         }
 
         .primary-btn:active {
-          background: #4f46e5;
+          background: #333;
         }
+
       `}</style>
     </div>
   )

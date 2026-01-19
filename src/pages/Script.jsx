@@ -446,7 +446,7 @@ const styles = `
 
   .script-error button {
     padding: 12px 24px;
-    background: #5046e4;
+    background: #111;
     color: white;
     border-radius: 8px;
   }
@@ -510,7 +510,7 @@ const styles = `
 
   .user-bubble {
     max-width: 85%;
-    background: #8b5cf6;
+    background: #111;
     color: white;
     padding: 16px;
     border-radius: 16px;
@@ -572,7 +572,7 @@ const styles = `
     max-width: 85%;
     background: white;
     border: 1px solid #e5e7eb;
-    border-left: 3px solid #8b5cf6;
+    border-left: 3px solid #111;
     padding: 16px;
     border-radius: 12px;
     border-top-left-radius: 0;
@@ -595,7 +595,7 @@ const styles = `
   }
 
   .pen-animation {
-    color: #8b5cf6;
+    color: #111;
     animation: penWrite 0.8s ease-in-out infinite;
   }
 
@@ -614,7 +614,7 @@ const styles = `
   .corrected-text {
     font-size: 15px;
     line-height: 1.7;
-    color: #8b5cf6;
+    color: #111;
     font-weight: 500;
     margin-bottom: 16px;
   }

@@ -544,7 +544,7 @@ function Analysis() {
         .analysis-error button {
           margin-top: 16px;
           padding: 12px 24px;
-          background: #5046e4;
+          background: #111;
           color: white;
           border-radius: 8px;
           font-weight: 500;
@@ -602,7 +602,7 @@ function Analysis() {
         }
 
         .cafp-icon {
-          color: #5046e4;
+          color: #111;
         }
 
         .cafp-label-en {
@@ -634,7 +634,7 @@ function Analysis() {
         .cafp-level .level-num {
           font-size: 20px;
           font-weight: 700;
-          color: #5046e4;
+          color: #111;
         }
 
         .cafp-score-row {
@@ -655,7 +655,7 @@ function Analysis() {
 
         .cafp-bar-fill {
           height: 100%;
-          background: linear-gradient(90deg, #5046e4, #7c3aed);
+          background: #111;
           border-radius: 4px;
           transition: width 0.5s ease;
         }
@@ -740,7 +740,7 @@ function Analysis() {
         .card-title {
           font-size: 14px;
           font-weight: 500;
-          color: #5046e4;
+          color: #111;
         }
 
         .card-arrow {
@@ -755,7 +755,7 @@ function Analysis() {
         }
 
         .card-summary strong {
-          color: #5046e4;
+          color: #111;
         }
 
         .card-preview {
@@ -786,7 +786,7 @@ function Analysis() {
         }
 
         .highlight {
-          color: #5046e4;
+          color: #111;
           font-weight: 500;
         }
 
@@ -812,7 +812,7 @@ function Analysis() {
         .word-tag {
           padding: 8px 16px;
           background: #f3f4f6;
-          color: #5046e4;
+          color: #111;
           font-size: 14px;
           border-radius: 20px;
           border: 1px solid #e5e7eb;
@@ -845,7 +845,7 @@ function Analysis() {
 
         .focus-card p {
           font-size: 14px;
-          color: #5046e4;
+          color: #111;
           margin-bottom: 4px;
         }
 
@@ -853,8 +853,8 @@ function Analysis() {
           margin-top: 16px;
           padding: 12px 24px;
           background: white;
-          border: 1px solid #5046e4;
-          color: #5046e4;
+          border: 1px solid #111;
+          color: #111;
           font-size: 14px;
           font-weight: 500;
           border-radius: 8px;
@@ -952,7 +952,7 @@ function Analysis() {
 
         .tip-card span {
           font-size: 15px;
-          color: #5046e4;
+          color: #111;
           font-weight: 500;
         }
 
@@ -1013,7 +1013,7 @@ function Analysis() {
         }
 
         .play-btn.playing {
-          background: #5046e4;
+          background: #111;
           color: white;
         }
 
@@ -1035,7 +1035,7 @@ function Analysis() {
           display: block;
           height: 100%;
           width: var(--progress, 0%);
-          background: #5046e4;
+          background: #111;
           border-radius: 2px;
           transition: width 0.1s linear;
         }
@@ -1045,7 +1045,7 @@ function Analysis() {
           display: block;
           width: 12px;
           height: 12px;
-          background: #5046e4;
+          background: #111;
           border-radius: 50%;
           position: absolute;
           top: -4px;
@@ -1148,7 +1148,7 @@ function Analysis() {
           width: 100%;
           margin-top: 24px;
           padding: 16px;
-          background: #5046e4;
+          background: #111;
           color: white;
           font-size: 16px;
           font-weight: 600;

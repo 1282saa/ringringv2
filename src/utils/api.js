@@ -12,7 +12,8 @@
  */
 
 import { API_URL, FCM_API_URL, SPEEDS } from '../constants'
-import { getTutorSettings } from './helpers'
+import { getTutorSettings, getDeviceId } from './helpers'
+import { cognitoService, AUTH_STORAGE_KEYS } from '../auth'
 
 // ============================================
 // API 액션 타입 정의
@@ -35,8 +36,49 @@ const API_ACTIONS = {
 // ============================================
 
 /**
+ * 인증 헤더를 가져오는 함수
+ * Cognito 토큰이 있으면 Authorization 헤더에 포함
+ *
+ * @private
+ * @returns {Promise<Object>} 인증 헤더 객체
+ */
+async function getAuthHeaders() {
+  try {
+    if (cognitoService.isAuthenticated()) {
+      const accessToken = await cognitoService.getAccessToken()
+      if (accessToken) {
+        return {
+          'Authorization': `Bearer ${accessToken}`,
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('[API] Failed to get auth token:', error)
+  }
+  return {}
+}
+
+/**
+ * 현재 사용자 ID를 가져오는 함수
+ * Cognito userId 우선, 없으면 deviceId 폴백
+ *
+ * @returns {Object} userId와 type 정보
+ */
+export function getUserIdentifier() {
+  // Cognito userId 확인
+  const userId = cognitoService.getUserIdFromToken()
+  if (userId) {
+    return { userId, type: 'cognito' }
+  }
+
+  // deviceId 폴백
+  return { userId: getDeviceId(), type: 'device' }
+}
+
+/**
  * API 요청을 수행하는 공통 함수
  * 모든 API 호출에서 사용되는 중복 로직을 통합
+ * 인증된 사용자의 경우 자동으로 Authorization 헤더 추가
  *
  * @private
  * @param {Object} body - 요청 본문
@@ -46,13 +88,30 @@ const API_ACTIONS = {
  */
 async function apiRequest(body, actionName) {
   try {
+    const authHeaders = await getAuthHeaders()
+    const { userId, type } = getUserIdentifier()
+
+    // userId를 body에 추가 (Cognito 사용자면 userId, 아니면 deviceId)
+    const requestBody = {
+      ...body,
+      ...(type === 'cognito' ? { userId } : { deviceId: userId }),
+    }
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(requestBody),
     })
+
+    // 인증 만료 시 처리
+    if (response.status === 401) {
+      console.warn('[API] Authentication expired')
+      cognitoService.clearTokens()
+      // 로그인 페이지로 리다이렉트는 컴포넌트에서 처리
+    }
 
     if (!response.ok) {
       throw new Error(`${actionName} API error: ${response.status}`)

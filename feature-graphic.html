@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 1024px;
+            height: 500px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.03);
+        }
+        .bg-circle.c1 { width: 600px; height: 600px; top: -200px; right: -100px; }
+        .bg-circle.c2 { width: 400px; height: 400px; bottom: -150px; left: -100px; }
+        .content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            z-index: 1;
+        }
+        .text-section {
+            color: white;
+        }
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 24px;
+        }
+        h1 {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        .tagline {
+            font-size: 24px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 400;
+        }
+        .phone-mockup {
+            width: 220px;
+            height: 440px;
+            background: #222;
+            border-radius: 36px;
+            padding: 12px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .avatar {
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 16px;
+        }
+        .tutor-name {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .call-time {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .wave-bars {
+            display: flex;
+            gap: 4px;
+            height: 32px;
+            align-items: center;
+        }
+        .wave-bars span {
+            width: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        .wave-bars span:nth-child(1) { height: 12px; animation-delay: 0s; }
+        .wave-bars span:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+        .wave-bars span:nth-child(3) { height: 28px; animation-delay: 0.2s; }
+        .wave-bars span:nth-child(4) { height: 20px; animation-delay: 0.3s; }
+        .wave-bars span:nth-child(5) { height: 12px; animation-delay: 0.4s; }
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.6); }
+            50% { transform: scaleY(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-circle c1"></div>
+    <div class="bg-circle c2"></div>
+    <div class="content">
+        <div class="text-section">
+            <div class="app-icon">A</div>
+            <h1>AI English Call</h1>
+            <p class="tagline">AI 튜터와 영어로 전화하세요</p>
+        </div>
+        <div class="phone-mockup">
+            <div class="phone-screen">
+                <div class="avatar">E</div>
+                <div class="tutor-name">Emma</div>
+                <div class="call-time">02:34</div>
+                <div class="wave-bars">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

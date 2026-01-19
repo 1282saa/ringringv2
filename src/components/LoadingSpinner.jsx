@@ -5,7 +5,7 @@ import { Loader } from 'lucide-react'
  *
  * @param {Object} props
  * @param {number} props.size - 스피너 크기 (기본: 24)
- * @param {string} props.color - 스피너 색상 (기본: #5046e4)
+ * @param {string} props.color - 스피너 색상 (기본: #111)
  * @param {string} props.text - 로딩 텍스트
  * @param {boolean} props.fullScreen - 전체 화면 오버레이 여부
  * @param {string} props.className - 추가 CSS 클래스
@@ -17,7 +17,7 @@ import { Loader } from 'lucide-react'
  */
 export function LoadingSpinner({
   size = 24,
-  color = '#5046e4',
+  color = '#111',
   text,
   fullScreen = false,
   className = ''

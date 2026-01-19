@@ -253,7 +253,7 @@ function NotificationSettings() {
         }
 
         .item-icon.speaking {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          background: #111;
         }
 
         .item-icon.reminder {
@@ -296,7 +296,7 @@ function NotificationSettings() {
         }
 
         .toggle-track.active {
-          background: #6366f1;
+          background: #111;
         }
 
         .toggle-thumb {
@@ -324,7 +324,7 @@ function NotificationSettings() {
           border-radius: 12px;
           font-size: 15px;
           font-weight: 600;
-          color: #6366f1;
+          color: #111;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -335,7 +335,7 @@ function NotificationSettings() {
 
         .test-btn:active {
           background: #f5f5f5;
-          border-color: #6366f1;
+          border-color: #111;
         }
 
         /* 안내 박스 */

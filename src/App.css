@@ -132,7 +132,7 @@
 
 /* Call Button - Special */
 .call-btn {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: #111;
   color: white;
   padding: 24px;
   border-radius: 20px;
@@ -144,13 +144,11 @@
   font-weight: 700;
   width: 100%;
   margin-top: 24px;
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
-  transition: all 0.3s;
+  transition: all 0.15s;
 }
 
 .call-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
+  background: #333;
 }
 
 .call-btn .icon {
@@ -198,12 +196,12 @@
 }
 
 .option-item:hover {
-  border-color: var(--primary-light);
+  border-color: #888;
 }
 
 .option-item.selected {
-  border-color: var(--primary);
-  background: rgba(99, 102, 241, 0.05);
+  border-color: #111;
+  background: #fafafa;
 }
 
 .option-item .icon {
@@ -236,7 +234,8 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  background: #111;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -269,14 +268,14 @@
 }
 
 .badge.primary {
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--primary);
+  background: #f0f0f0;
+  color: #111;
 }
 
 /* Call Screen */
 .call-screen {
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--gray-900) 0%, #1e1b4b 100%);
+  background: #111;
   display: flex;
   flex-direction: column;
   color: white;
@@ -329,13 +328,13 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  background: #fff;
+  color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 48px;
   margin-bottom: 24px;
-  box-shadow: 0 0 60px rgba(99, 102, 241, 0.5);
 }
 
 .call-tutor-name {
@@ -443,10 +442,10 @@
 
 /* Result Screen */
 .result-header {
-  text-align: center;
-  padding: 32px 24px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: white;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  background: #fafafa;
 }
 
 .result-icon {
@@ -482,7 +481,7 @@
 .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: var(--primary);
+  color: #111;
 }
 
 .stat-label {
@@ -515,7 +514,7 @@
 }
 
 .transcript-avatar.ai {
-  background: var(--primary);
+  background: #111;
   color: white;
 }
 
@@ -560,8 +559,8 @@
 }
 
 .day-btn.selected {
-  border-color: var(--primary);
-  background: var(--primary);
+  border-color: #111;
+  background: #111;
   color: white;
 }
 
@@ -677,8 +676,8 @@
 }
 
 .nav-item.active {
-  color: var(--primary);
-  background: rgba(99, 102, 241, 0.1);
+  color: #111;
+  background: #f0f0f0;
 }
 
 .nav-item .label {

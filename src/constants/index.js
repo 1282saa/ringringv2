@@ -39,6 +39,7 @@ export const STORAGE_KEYS = {
   CALL_HISTORY: 'callHistory',          // 통화 기록
   LAST_CALL_RESULT: 'lastCallResult',   // 마지막 통화 결과
   LAST_FEEDBACK: 'lastFeedback',        // 마지막 피드백
+  DEVICE_ID: 'deviceId',                // 디바이스 고유 ID
 }
 
 // ============================================
@@ -107,8 +108,75 @@ export const LEVELS = [
  * @constant {Array<Object>}
  */
 export const DIFFICULTIES = [
-  { id: 'easy', label: 'Easy' },
-  { id: 'intermediate', label: 'Intermediate' },
+  {
+    id: 'easy',
+    label: 'Easy',
+    description: '천천히, 간단한 문장으로 대화해요',
+    detail: '기초 어휘 위주 • 짧은 문장 • 반복 설명'
+  },
+  {
+    id: 'intermediate',
+    label: 'Intermediate',
+    description: '자연스러운 속도로 다양한 표현을 써요',
+    detail: '일상 어휘 + 관용구 • 복문 사용 • 자연스러운 대화'
+  },
+  {
+    id: 'advanced',
+    label: 'Advanced',
+    description: '원어민처럼 빠르고 깊이있는 대화를 해요',
+    detail: '고급 어휘 • 뉴스/비즈니스 주제 • 토론 가능'
+  },
+]
+
+/**
+ * 추천 프리셋 옵션
+ * @constant {Array<Object>}
+ */
+export const PRESETS = [
+  {
+    id: 'business',
+    label: '비즈니스 영어',
+    description: '회의, 이메일, 프레젠테이션',
+    settings: {
+      difficulty: 'intermediate',
+      speed: 'normal',
+      duration: '10',
+      recommendedTopics: ['career', 'tech']
+    }
+  },
+  {
+    id: 'daily',
+    label: '일상 회화',
+    description: '카페, 쇼핑, 친구와 대화',
+    settings: {
+      difficulty: 'easy',
+      speed: 'normal',
+      duration: '5',
+      recommendedTopics: ['daily', 'food', 'culture']
+    }
+  },
+  {
+    id: 'travel',
+    label: '여행 영어',
+    description: '공항, 호텔, 관광지',
+    settings: {
+      difficulty: 'easy',
+      speed: 'slow',
+      duration: '5',
+      recommendedTopics: ['travel']
+    }
+  },
+  {
+    id: 'interview',
+    label: '면접 준비',
+    description: '자기소개, 경험 설명, 질의응답',
+    settings: {
+      difficulty: 'intermediate',
+      speed: 'normal',
+      duration: '10',
+      recommendedTopics: ['career', 'education']
+    }
+  },
 ]
 
 /**
