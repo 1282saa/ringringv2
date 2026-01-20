@@ -16,7 +16,6 @@ import {
   MessageCircle, Loader, Settings, Sparkles, Pencil
 } from 'lucide-react'
 import { textToSpeech, playAudioBase64, getSessionDetail, translateText } from '../utils/api'
-import { getDeviceId } from '../utils/helpers'
 
 function Script() {
   const navigate = useNavigate()
@@ -47,8 +46,7 @@ function Script() {
   const loadSessionFromDB = async (sessId) => {
     setIsLoading(true)
     try {
-      const deviceId = getDeviceId()
-      const result = await getSessionDetail(deviceId, sessId)
+      const result = await getSessionDetail(sessId)
 
       if (result.messages && result.messages.length > 0) {
         const messagesWithId = result.messages.map((msg, idx) => ({

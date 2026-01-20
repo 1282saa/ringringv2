@@ -12,8 +12,8 @@
  */
 
 import { API_URL, FCM_API_URL, SPEEDS } from '../constants'
-import { getTutorSettings, getDeviceId } from './helpers'
-import { cognitoService, AUTH_STORAGE_KEYS } from '../auth'
+import { getTutorSettings } from './helpers'
+import { cognitoService } from '../auth'
 
 // ============================================
 // API 액션 타입 정의
@@ -60,19 +60,12 @@ async function getAuthHeaders() {
 
 /**
  * 현재 사용자 ID를 가져오는 함수
- * Cognito userId 우선, 없으면 deviceId 폴백
+ * Cognito userId 필수 (로그인 필수 앱)
  *
- * @returns {Object} userId와 type 정보
+ * @returns {string|null} Cognito userId
  */
-export function getUserIdentifier() {
-  // Cognito userId 확인
-  const userId = cognitoService.getUserIdFromToken()
-  if (userId) {
-    return { userId, type: 'cognito' }
-  }
-
-  // deviceId 폴백
-  return { userId: getDeviceId(), type: 'device' }
+export function getUserId() {
+  return cognitoService.getUserIdFromToken()
 }
 
 /**
@@ -89,12 +82,12 @@ export function getUserIdentifier() {
 async function apiRequest(body, actionName) {
   try {
     const authHeaders = await getAuthHeaders()
-    const { userId, type } = getUserIdentifier()
+    const userId = getUserId()
 
-    // userId를 body에 추가 (Cognito 사용자면 userId, 아니면 deviceId)
+    // userId를 body에 추가 (로그인 필수)
     const requestBody = {
       ...body,
-      ...(type === 'cognito' ? { userId } : { deviceId: userId }),
+      userId,
     }
 
     const response = await fetch(API_URL, {
@@ -425,7 +418,6 @@ export async function speechToText(audioBlob, language = 'en-US') {
 /**
  * 사용자 맞춤설정을 서버에 저장
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {Object} settings - 튜터 설정 객체
  * @returns {Promise<Object>} 저장 결과
  * @returns {boolean} return.success - 성공 여부
@@ -433,7 +425,7 @@ export async function speechToText(audioBlob, language = 'en-US') {
  * @returns {string} return.updatedAt - 업데이트 시간
  *
  * @example
- * const result = await saveSettingsToServer(deviceId, {
+ * const result = await saveSettingsToServer({
  *   tutorId: 'tutor-1',
  *   accent: 'uk',
  *   gender: 'male',
@@ -441,11 +433,10 @@ export async function speechToText(audioBlob, language = 'en-US') {
  *   level: 'intermediate'
  * })
  */
-export async function saveSettingsToServer(deviceId, settings) {
+export async function saveSettingsToServer(settings) {
   return apiRequest(
     {
       action: 'save_settings',
-      deviceId,
       settings,
     },
     'SaveSettings'
@@ -455,23 +446,21 @@ export async function saveSettingsToServer(deviceId, settings) {
 /**
  * 서버에서 사용자 맞춤설정 조회
  *
- * @param {string} deviceId - 디바이스 UUID
  * @returns {Promise<Object>} 설정 조회 결과
  * @returns {boolean} return.success - 성공 여부
  * @returns {Object} return.settings - 설정 객체 (없으면 null)
  * @returns {string} [return.updatedAt] - 마지막 업데이트 시간
  *
  * @example
- * const { success, settings } = await getSettingsFromServer(deviceId)
+ * const { success, settings } = await getSettingsFromServer()
  * if (success && settings) {
  *   console.log('Loaded saved settings:', settings)
  * }
  */
-export async function getSettingsFromServer(deviceId) {
+export async function getSettingsFromServer() {
   return apiRequest(
     {
       action: 'get_settings',
-      deviceId,
     },
     'GetSettings'
   )
@@ -484,20 +473,18 @@ export async function getSettingsFromServer(deviceId) {
 /**
  * 새 대화 세션 시작
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {string} sessionId - 세션 UUID
  * @param {Object} settings - 튜터 설정
  * @param {string} tutorName - 튜터 이름
  * @returns {Promise<Object>} 세션 시작 결과
  *
  * @example
- * const result = await startSession(deviceId, sessionId, settings, 'Gwen')
+ * const result = await startSession(sessionId, settings, 'Gwen')
  */
-export async function startSession(deviceId, sessionId, settings, tutorName) {
+export async function startSession(sessionId, settings, tutorName) {
   return apiRequest(
     {
       action: 'start_session',
-      deviceId,
       sessionId,
       settings,
       tutorName,
@@ -509,7 +496,6 @@ export async function startSession(deviceId, sessionId, settings, tutorName) {
 /**
  * 대화 세션 종료
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {string} sessionId - 세션 UUID
  * @param {number} duration - 통화 시간 (초)
  * @param {number} turnCount - 대화 턴 수
@@ -517,13 +503,12 @@ export async function startSession(deviceId, sessionId, settings, tutorName) {
  * @returns {Promise<Object>} 세션 종료 결과
  *
  * @example
- * const result = await endSession(deviceId, sessionId, 300, 10, 150)
+ * const result = await endSession(sessionId, 300, 10, 150)
  */
-export async function endSession(deviceId, sessionId, duration, turnCount, wordCount) {
+export async function endSession(sessionId, duration, turnCount, wordCount) {
   return apiRequest(
     {
       action: 'end_session',
-      deviceId,
       sessionId,
       duration,
       turnCount,
@@ -536,7 +521,6 @@ export async function endSession(deviceId, sessionId, duration, turnCount, wordC
 /**
  * 대화 메시지 저장
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {string} sessionId - 세션 UUID
  * @param {Object} message - 메시지 객체
  * @param {string} message.role - 역할 ('user' | 'assistant')
@@ -545,17 +529,16 @@ export async function endSession(deviceId, sessionId, duration, turnCount, wordC
  * @returns {Promise<Object>} 메시지 저장 결과
  *
  * @example
- * await saveMessage(deviceId, sessionId, {
+ * await saveMessage(sessionId, {
  *   role: 'user',
  *   content: 'Hello!',
  *   turnNumber: 1
  * })
  */
-export async function saveMessage(deviceId, sessionId, message) {
+export async function saveMessage(sessionId, message) {
   return apiRequest(
     {
       action: 'save_message',
-      deviceId,
       sessionId,
       message,
     },
@@ -566,19 +549,17 @@ export async function saveMessage(deviceId, sessionId, message) {
 /**
  * 세션 목록 조회
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {number} [limit=10] - 조회 개수
  * @param {Object} [lastKey] - 페이지네이션 키
  * @returns {Promise<Object>} 세션 목록
  *
  * @example
- * const { sessions, hasMore } = await getSessions(deviceId, 10)
+ * const { sessions, hasMore } = await getSessions(10)
  */
-export async function getSessions(deviceId, limit = 10, lastKey = null) {
+export async function getSessions(limit = 10, lastKey = null) {
   return apiRequest(
     {
       action: 'get_sessions',
-      deviceId,
       limit,
       lastKey,
     },
@@ -589,18 +570,16 @@ export async function getSessions(deviceId, limit = 10, lastKey = null) {
 /**
  * 세션 상세 조회 (메시지 포함)
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {string} sessionId - 세션 UUID
  * @returns {Promise<Object>} 세션 상세 및 메시지
  *
  * @example
- * const { session, messages } = await getSessionDetail(deviceId, sessionId)
+ * const { session, messages } = await getSessionDetail(sessionId)
  */
-export async function getSessionDetail(deviceId, sessionId) {
+export async function getSessionDetail(sessionId) {
   return apiRequest(
     {
       action: 'get_session_detail',
-      deviceId,
       sessionId,
     },
     'GetSessionDetail'
@@ -610,18 +589,16 @@ export async function getSessionDetail(deviceId, sessionId) {
 /**
  * 세션 삭제
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {string} sessionId - 세션 UUID
  * @returns {Promise<Object>} 삭제 결과
  *
  * @example
- * await deleteSession(deviceId, sessionId)
+ * await deleteSession(sessionId)
  */
-export async function deleteSession(deviceId, sessionId) {
+export async function deleteSession(sessionId) {
   return apiRequest(
     {
       action: 'delete_session',
-      deviceId,
       sessionId,
     },
     'DeleteSession'
@@ -692,16 +669,14 @@ export async function uploadPracticeAudio(audioBlob, sessionId, practiceIndex) {
 /**
  * 연습 결과 저장 (메타데이터)
  *
- * @param {string} deviceId - 디바이스 UUID
  * @param {string} sessionId - 세션 ID
  * @param {Object} practiceData - 연습 데이터
  * @returns {Promise<Object>} 저장 결과
  */
-export async function savePracticeResult(deviceId, sessionId, practiceData) {
+export async function savePracticeResult(sessionId, practiceData) {
   return apiRequest(
     {
       action: 'save_practice_result',
-      deviceId,
       sessionId,
       practiceData,
     },
@@ -737,6 +712,124 @@ async function fcmApiRequest(body, actionName) {
     throw error
   }
 }
+
+// ============================================
+// 사용량 제한 API
+// ============================================
+
+/**
+ * 사용량 제한 플랜별 설정
+ * @constant {Object}
+ */
+export const USAGE_LIMITS = {
+  free: {
+    dailyChatCount: 3,
+    dailyTtsCount: 10,
+    dailyAnalyzeCount: 1,
+    label: '무료',
+  },
+  basic: {
+    dailyChatCount: 20,
+    dailyTtsCount: 100,
+    dailyAnalyzeCount: 5,
+    label: '베이직',
+  },
+  premium: {
+    dailyChatCount: -1, // -1 = 무제한
+    dailyTtsCount: -1,
+    dailyAnalyzeCount: -1,
+    label: '프리미엄',
+  },
+}
+
+/**
+ * 사용자 사용량 조회
+ *
+ * @returns {Promise<Object>} 사용량 정보
+ * @returns {string} return.plan - 현재 플랜 ('free' | 'basic' | 'premium')
+ * @returns {number} return.chatCount - 오늘 대화 횟수
+ * @returns {number} return.ttsCount - 오늘 TTS 횟수
+ * @returns {number} return.analyzeCount - 오늘 분석 횟수
+ * @returns {Object} return.limits - 플랜별 제한
+ * @returns {string} return.resetTime - 초기화 시간 (KST 자정)
+ *
+ * @example
+ * const usage = await getUsage()
+ * console.log(usage.chatCount, usage.limits.dailyChatCount)
+ */
+export async function getUsage() {
+  return apiRequest(
+    {
+      action: 'get_usage',
+    },
+    'GetUsage'
+  )
+}
+
+/**
+ * 사용량 증가 (API 호출 시 자동 처리되므로 직접 호출 불필요)
+ *
+ * @param {string} type - 사용 타입 ('chat' | 'tts' | 'analyze')
+ * @returns {Promise<Object>} 업데이트된 사용량
+ */
+export async function incrementUsage(type) {
+  return apiRequest(
+    {
+      action: 'increment_usage',
+      usageType: type,
+    },
+    'IncrementUsage'
+  )
+}
+
+/**
+ * 사용량 제한 확인
+ * API 호출 전에 제한 초과 여부 확인
+ *
+ * @param {string} type - 확인할 타입 ('chat' | 'tts' | 'analyze')
+ * @returns {Promise<Object>} 제한 확인 결과
+ * @returns {boolean} return.allowed - 사용 가능 여부
+ * @returns {number} return.remaining - 남은 횟수 (-1이면 무제한)
+ * @returns {string} return.plan - 현재 플랜
+ * @returns {string} return.resetTime - 초기화 시간
+ *
+ * @example
+ * const { allowed, remaining } = await checkUsageLimit('chat')
+ * if (!allowed) {
+ *   showUpgradeModal()
+ * }
+ */
+export async function checkUsageLimit(type) {
+  return apiRequest(
+    {
+      action: 'check_usage_limit',
+      usageType: type,
+    },
+    'CheckUsageLimit'
+  )
+}
+
+/**
+ * 사용자 플랜 업그레이드 (결제 후 호출)
+ *
+ * @param {string} plan - 업그레이드할 플랜 ('basic' | 'premium')
+ * @param {string} transactionId - 결제 트랜잭션 ID
+ * @returns {Promise<Object>} 업그레이드 결과
+ */
+export async function upgradePlan(plan, transactionId) {
+  return apiRequest(
+    {
+      action: 'upgrade_plan',
+      plan,
+      transactionId,
+    },
+    'UpgradePlan'
+  )
+}
+
+// ============================================
+// FCM 푸시 알림 API
+// ============================================
 
 /**
  * FCM 토큰을 서버에 등록

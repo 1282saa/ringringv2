@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './',  // Android/iOS 앱용 상대 경로
+  base: '/',  // 웹 배포용 절대 경로 (Capacitor도 지원)
 })

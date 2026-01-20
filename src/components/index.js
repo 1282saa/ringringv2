@@ -23,3 +23,7 @@ export {
   SettingOptions,
   PageHeader
 } from './SettingComponents'
+
+// 사용량 관련 컴포넌트
+export { UsageCard, UsageBadge } from './UsageDisplay'
+export { UpgradeModal } from './UpgradeModal'

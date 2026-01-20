@@ -9,15 +9,20 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, X, Check, Flame, User, LogOut } from 'lucide-react'
+import { ChevronRight, X, Check, Flame, User, LogOut, Crown } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 import { haptic } from '../utils/capacitor'
 import { TUTORS } from '../constants'
 import { useAuth } from '../auth'
+import { useUsage } from '../context'
 
 function Settings() {
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
+  const { usage, limits } = useUsage()
+
+  // 플랜 라벨
+  const planLabels = { free: '무료', basic: '베이직', premium: '프리미엄' }
 
   // 설정 상태
   const [userName, setUserName] = useState('')
@@ -168,6 +173,27 @@ function Settings() {
 
       {/* 메인 콘텐츠 */}
       <div className="page-content">
+        {/* 플랜 관리 섹션 */}
+        <section className="settings-section">
+          <h2 className="section-label">구독 관리</h2>
+          <div className="settings-list">
+            <div className="settings-item" onClick={() => handleNav(() => navigate('/settings/plan'))}>
+              <span className="item-label">
+                <Crown size={16} style={{ marginRight: 6, color: usage.plan === 'premium' ? '#d97706' : '#7c3aed' }} />
+                플랜 관리
+              </span>
+              <div className="item-right">
+                <span className="item-value" style={{
+                  color: usage.plan === 'premium' ? '#d97706' : usage.plan === 'basic' ? '#7c3aed' : '#6b7280'
+                }}>
+                  {planLabels[usage.plan] || '무료'}
+                </span>
+                <ChevronRight size={20} color="#c0c0c0" />
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* 공통 설정 섹션 */}
         <section className="settings-section">
           <h2 className="section-label">공통 설정</h2>

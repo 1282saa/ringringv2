@@ -8,6 +8,7 @@ import CurriculumSettings from './pages/CurriculumSettings'
 import RoleplaySettings from './pages/RoleplaySettings'
 import RoleplayCategory from './pages/RoleplayCategory'
 import NotificationSettings from './pages/NotificationSettings'
+import PlanSettings from './pages/PlanSettings'
 import Call from './pages/Call'
 import Result from './pages/Result'
 import Script from './pages/Script'
@@ -15,7 +16,8 @@ import Analysis from './pages/Analysis'
 import Practice from './pages/Practice'
 import IncomingCall from './pages/IncomingCall'
 import { notificationService } from './services/notificationService'
-import { UserSettingsProvider } from './context'
+import { UserSettingsProvider, UsageProvider } from './context'
+import { UpgradeModal } from './components'
 import { initializeApp, setupBackButton } from './utils/capacitor'
 // Auth imports
 import { AuthProvider, ProtectedRoute, PublicRoute } from './auth'
@@ -83,6 +85,7 @@ function AppContent() {
       <Route path="/settings/roleplay" element={<ProtectedRoute><RoleplaySettings /></ProtectedRoute>} />
       <Route path="/settings/roleplay/category" element={<ProtectedRoute><RoleplayCategory /></ProtectedRoute>} />
       <Route path="/settings/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+      <Route path="/settings/plan" element={<ProtectedRoute><PlanSettings /></ProtectedRoute>} />
       <Route path="/call" element={<ProtectedRoute><Call /></ProtectedRoute>} />
       <Route path="/result" element={<ProtectedRoute><Result /></ProtectedRoute>} />
       <Route path="/script" element={<ProtectedRoute><Script /></ProtectedRoute>} />
@@ -106,9 +109,12 @@ function App() {
   return (
     <AuthProvider>
       <UserSettingsProvider>
-        <div className="app">
-          <AppContent />
-        </div>
+        <UsageProvider>
+          <div className="app">
+            <AppContent />
+            <UpgradeModal />
+          </div>
+        </UsageProvider>
       </UserSettingsProvider>
     </AuthProvider>
   )

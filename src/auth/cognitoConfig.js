@@ -17,12 +17,13 @@ export const COGNITO_CONFIG = {
     // Dynamic redirect URIs based on platform
     getRedirectSignIn: () => {
       if (typeof window !== 'undefined') {
-        if (window.location.hostname === 'localhost') {
-          return `http://localhost:${window.location.port || 5173}/auth/callback`
-        }
-        // Check if running in Capacitor
+        // Check Capacitor FIRST (WebView also uses localhost)
         if (window.Capacitor?.isNativePlatform()) {
           return 'com.aienglish.call://auth/callback'
+        }
+        // Local development
+        if (window.location.hostname === 'localhost') {
+          return `http://localhost:${window.location.port || 5173}/auth/callback`
         }
         // CloudFront or other web deployment
         return `${window.location.origin}/auth/callback`
@@ -32,11 +33,13 @@ export const COGNITO_CONFIG = {
 
     getRedirectSignOut: () => {
       if (typeof window !== 'undefined') {
-        if (window.location.hostname === 'localhost') {
-          return `http://localhost:${window.location.port || 5173}`
-        }
+        // Check Capacitor FIRST (WebView also uses localhost)
         if (window.Capacitor?.isNativePlatform()) {
           return 'com.aienglish.call://'
+        }
+        // Local development
+        if (window.location.hostname === 'localhost') {
+          return `http://localhost:${window.location.port || 5173}`
         }
         // CloudFront or other web deployment
         return window.location.origin

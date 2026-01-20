@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mic, MicOff, Volume2, VolumeX, Captions, X } from 'lucide-react'
 import { sendMessage, textToSpeech, playAudioBase64, speechToText, startSession, endSession, saveMessage, translateText } from '../utils/api'
-import { getDeviceId } from '../utils/helpers'
 import { haptic, configureStatusBar } from '../utils/capacitor'
 import { TranscribeStreamingClient } from '../utils/transcribeStreaming'
-import { useUserSettings } from '../context'
+import { useUserSettings, useUsage } from '../context'
 
 // 자막 설정 옵션
 const SUBTITLE_OPTIONS = [
@@ -59,7 +58,6 @@ function Call() {
 
   // 세션 관리 (DynamoDB 저장용)
   const [sessionId] = useState(() => crypto.randomUUID())
-  const deviceId = getDeviceId()
   const sessionStartedRef = useRef(false)
 
   const timerRef = useRef(null)
@@ -92,6 +90,9 @@ function Call() {
 
   // Context에서 튜터 설정 가져오기
   const { settings, tutorName, tutorInitial, gender } = useUserSettings()
+
+  // 사용량 관리
+  const { checkAndShowLimit, incrementLocal, canUse } = useUsage()
 
   // VAD 설정
   const VAD_THRESHOLD = 15 // 음성 감지 임계값 (0-255, 낮을수록 민감)
@@ -509,13 +510,18 @@ function Call() {
   }, [])
 
   const startConversation = async () => {
+    // 사용량 체크 (대화 시작 전)
+    if (!checkAndShowLimit('chat')) {
+      return // 제한 초과 시 모달 표시하고 리턴
+    }
+
     setIsLoading(true)
     try {
       // 1. DynamoDB에 세션 시작 기록
       if (!sessionStartedRef.current) {
         sessionStartedRef.current = true
         try {
-          await startSession(deviceId, sessionId, settings, tutorName)
+          await startSession(sessionId, settings, tutorName)
           console.log('[DB] Session started:', sessionId)
         } catch (dbErr) {
           console.error('[DB] Failed to start session:', dbErr)
@@ -524,6 +530,8 @@ function Call() {
 
       // 2. AI 응답 받기
       const response = await sendMessage([], settings)
+      incrementLocal('chat') // 사용량 증가
+
       const aiMessage = {
         role: 'assistant',
         content: response.message,
@@ -537,7 +545,7 @@ function Call() {
 
       // 4. 첫 AI 메시지 DynamoDB에 저장
       try {
-        await saveMessage(deviceId, sessionId, {
+        await saveMessage(sessionId, {
           role: 'assistant',
           content: response.message,
           turnNumber: 0
@@ -762,7 +770,7 @@ function Call() {
 
     // 사용자 메시지 DynamoDB에 저장
     try {
-      await saveMessage(deviceId, sessionId, {
+      await saveMessage(sessionId, {
         role: 'user',
         content: text,
         turnNumber: newTurnCount
@@ -796,7 +804,7 @@ function Call() {
 
       // AI 응답 DynamoDB에 저장
       try {
-        await saveMessage(deviceId, sessionId, {
+        await saveMessage(sessionId, {
           role: 'assistant',
           content: response.message,
           turnNumber: newTurnCount
@@ -841,7 +849,7 @@ function Call() {
 
     // DynamoDB에 세션 종료 기록
     try {
-      await endSession(deviceId, sessionId, callTime, finalTurnCount, finalWordCount)
+      await endSession(sessionId, callTime, finalTurnCount, finalWordCount)
       console.log('[DB] Session ended:', sessionId)
     } catch (dbErr) {
       console.error('[DB] Failed to end session:', dbErr)
