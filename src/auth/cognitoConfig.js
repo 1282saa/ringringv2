@@ -24,8 +24,10 @@ export const COGNITO_CONFIG = {
         if (window.Capacitor?.isNativePlatform()) {
           return 'com.aienglish.call://auth/callback'
         }
+        // CloudFront or other web deployment
+        return `${window.location.origin}/auth/callback`
       }
-      return 'https://your-domain.com/auth/callback'
+      return 'https://d3pw62uy753kuv.cloudfront.net/auth/callback'
     },
 
     getRedirectSignOut: () => {
@@ -36,8 +38,10 @@ export const COGNITO_CONFIG = {
         if (window.Capacitor?.isNativePlatform()) {
           return 'com.aienglish.call://'
         }
+        // CloudFront or other web deployment
+        return window.location.origin
       }
-      return 'https://your-domain.com'
+      return 'https://d3pw62uy753kuv.cloudfront.net'
     }
   }
 }
