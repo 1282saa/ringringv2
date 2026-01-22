@@ -74,52 +74,60 @@ flowchart TB
 ## 2. 기술 작동 흐름도 (Sequence Diagram)
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a237e', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#000000', 'lineColor': '#000000', 'secondaryColor': '#004d40', 'tertiaryColor': '#b71c1c', 'noteBkgColor': '#fff9c4', 'noteTextColor': '#000000', 'actorBkg': '#0d47a1', 'actorTextColor': '#ffffff', 'actorBorder': '#000000', 'signalColor': '#000000', 'signalTextColor': '#000000'}}}%%
 sequenceDiagram
     autonumber
     participant U as User
-    participant F as Frontend (React)
+    participant F as Frontend
     participant W as Web Speech API
     participant L as Lambda
-    participant B as Bedrock (Claude)
+    participant B as Bedrock Claude
     participant P as Polly
     participant D as DynamoDB
 
-    rect rgb(232, 245, 233)
+    rect rgb(200, 230, 201)
         Note over U,D: 음성 대화 흐름
-        U->>F: 음성 입력 (말하기)
+        U->>F: 음성 입력
         F->>W: 음성 인식 요청
-        W-->>F: 텍스트 변환 결과
+        W-->>F: 텍스트 변환
         F->>L: chat API 호출
         L->>B: AI 대화 요청
 
-        rect rgb(255, 235, 238)
-            Note over B: [Domain Knowledge 필요 지점 1]<br/>레벨별 적절한 응답 생성<br/>비즈니스/일상 영어 전문성
+        rect rgb(255, 205, 210)
+            Note over B: DOMAIN KNOWLEDGE 필요 1
         end
 
         B-->>L: AI 응답 텍스트
         L->>P: TTS 요청
-        P-->>L: 음성 데이터 (MP3)
+        P-->>L: 음성 MP3
         L-->>F: 응답 + 음성
         F->>U: 음성 재생
     end
 
-    rect rgb(227, 242, 253)
+    rect rgb(187, 222, 251)
         Note over U,D: 분석 및 저장 흐름
         U->>F: 통화 종료
         F->>L: analyze API 호출
         L->>B: 대화 분석 요청
 
-        rect rgb(255, 235, 238)
-            Note over B: [Domain Knowledge 필요 지점 2]<br/>CAFP 점수 평가 기준<br/>문법 오류 분류 체계<br/>레벨별 피드백 설계
+        rect rgb(255, 205, 210)
+            Note over B: DOMAIN KNOWLEDGE 필요 2
         end
 
-        B-->>L: 분석 결과 (JSON)
-        L->>D: 세션 데이터 저장
+        B-->>L: 분석 결과 JSON
+        L->>D: 세션 저장
         D-->>L: 저장 완료
-        L-->>F: 분석 결과 반환
-        F->>U: 결과 화면 표시
+        L-->>F: 분석 결과
+        F->>U: 결과 화면
     end
 ```
+
+### Domain Knowledge 필요 지점 상세
+
+| 지점 | 필요 내용 |
+|------|-----------|
+| **DOMAIN KNOWLEDGE 필요 1** | 레벨별 적절한 응답 생성, 비즈니스/일상 영어 전문성 |
+| **DOMAIN KNOWLEDGE 필요 2** | CAFP 점수 평가 기준, 문법 오류 분류 체계, 레벨별 피드백 설계 |
 
 ---
 
