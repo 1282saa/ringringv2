@@ -59,11 +59,14 @@ flowchart TB
     U <--> FRONTEND
     FRONTEND <--> API
 
-    style USER fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
-    style FRONTEND fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    style AWS fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    style AI fill:#fce4ec,stroke:#e91e63,stroke-width:2px
-    style BEDROCK fill:#ff6b6b,stroke:#c0392b,stroke-width:2px,color:#fff
+    style USER fill:#1b5e20,stroke:#000,stroke-width:2px,color:#fff
+    style FRONTEND fill:#0d47a1,stroke:#000,stroke-width:2px,color:#fff
+    style AWS fill:#e65100,stroke:#000,stroke-width:2px,color:#fff
+    style API fill:#ff6f00,stroke:#000,stroke-width:2px,color:#000
+    style COMPUTE fill:#f57c00,stroke:#000,stroke-width:2px,color:#000
+    style AI fill:#b71c1c,stroke:#000,stroke-width:2px,color:#fff
+    style STORAGE fill:#4a148c,stroke:#000,stroke-width:2px,color:#fff
+    style BEDROCK fill:#d50000,stroke:#000,stroke-width:3px,color:#fff
 ```
 
 ---
@@ -125,7 +128,7 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     subgraph CURRENT["현재 시스템"]
-        AI["AI (Claude)<br/>일반적 영어 지식<br/>패턴 기반 분석<br/>프롬프트 의존"]
+        AI["AI - Claude<br/>일반적 영어 지식<br/>패턴 기반 분석<br/>프롬프트 의존"]
     end
 
     GAP["GAP"]
@@ -147,8 +150,10 @@ flowchart LR
     NEED --> EXPERT
     EXPERT -.->|"검증 및 설계"| CURRENT
 
-    style GAP fill:#ff6b6b,stroke:#c0392b,stroke-width:3px,color:#fff
-    style EXPERT fill:#6c5ce7,stroke:#5849c4,stroke-width:2px,color:#fff
+    style CURRENT fill:#1565c0,stroke:#000,stroke-width:2px,color:#fff
+    style GAP fill:#c62828,stroke:#000,stroke-width:3px,color:#fff
+    style NEED fill:#2e7d32,stroke:#000,stroke-width:2px,color:#fff
+    style EXPERT fill:#6a1b9a,stroke:#000,stroke-width:2px,color:#fff
 ```
 
 > **핵심 문제:** AI 프롬프트만으로는 교육학적으로 검증된 품질을 보장하기 어려움.
@@ -196,10 +201,12 @@ flowchart TB
 
     CAFP --> CEFR
 
-    style C fill:#74b9ff,stroke:#0984e3
-    style A fill:#55efc4,stroke:#00b894
-    style F fill:#ffeaa7,stroke:#fdcb6e
-    style P fill:#fab1a0,stroke:#e17055
+    style CAFP fill:#263238,stroke:#000,stroke-width:2px,color:#fff
+    style C fill:#0d47a1,stroke:#000,stroke-width:2px,color:#fff
+    style A fill:#1b5e20,stroke:#000,stroke-width:2px,color:#fff
+    style F fill:#e65100,stroke:#000,stroke-width:2px,color:#fff
+    style P fill:#b71c1c,stroke:#000,stroke-width:2px,color:#fff
+    style CEFR fill:#4a148c,stroke:#000,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -239,8 +246,12 @@ flowchart TB
 
     ROOT -.-> L1INT
 
-    style ROOT fill:#6c5ce7,color:#fff
-    style L1INT fill:#ff7675,stroke:#d63031
+    style ROOT fill:#311b92,stroke:#000,stroke-width:3px,color:#fff
+    style M fill:#0d47a1,stroke:#000,stroke-width:2px,color:#fff
+    style S fill:#1b5e20,stroke:#000,stroke-width:2px,color:#fff
+    style L fill:#e65100,stroke:#000,stroke-width:2px,color:#fff
+    style PR fill:#880e4f,stroke:#000,stroke-width:2px,color:#fff
+    style L1INT fill:#b71c1c,stroke:#000,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -275,8 +286,8 @@ flowchart LR
 
     QUAL --> ROLE
 
-    style ROLE fill:#dfe6e9,stroke:#636e72
-    style QUAL fill:#81ecec,stroke:#00cec9
+    style ROLE fill:#1a237e,stroke:#000,stroke-width:2px,color:#fff
+    style QUAL fill:#004d40,stroke:#000,stroke-width:2px,color:#fff
 ```
 
 ---
