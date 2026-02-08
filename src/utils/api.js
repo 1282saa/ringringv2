@@ -876,3 +876,274 @@ export async function sendPushNotification(deviceId, title, body, data = {}) {
     'SendPush'
   )
 }
+
+// ============================================
+// 펫 캐릭터 API
+// ============================================
+
+/**
+ * 펫 이미지를 S3에 업로드
+ *
+ * @param {string} imageBase64 - Base64 인코딩된 이미지 데이터
+ * @returns {Promise<Object>} 업로드 결과
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {string} return.imageUrl - S3 이미지 URL
+ * @returns {string} return.uploadedAt - 업로드 시간
+ *
+ * @example
+ * const result = await uploadPetImage(base64Image)
+ * console.log(result.imageUrl)
+ */
+export async function uploadPetImage(imageBase64) {
+  return apiRequest(
+    {
+      action: 'upload_pet_image',
+      image: imageBase64,
+    },
+    'UploadPetImage'
+  )
+}
+
+/**
+ * 펫 정보를 서버에 저장
+ *
+ * @param {string} petName - 펫 이름
+ * @param {string} imageUrl - S3 이미지 URL
+ * @returns {Promise<Object>} 저장 결과
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {Object} return.pet - 저장된 펫 정보
+ *
+ * @example
+ * const result = await savePet('멍멍이', imageUrl)
+ */
+export async function savePet(petName, imageUrl) {
+  return apiRequest(
+    {
+      action: 'save_pet',
+      petName,
+      imageUrl,
+    },
+    'SavePet'
+  )
+}
+
+/**
+ * 서버에서 펫 정보 조회
+ *
+ * @returns {Promise<Object>} 펫 정보
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {Object|null} return.pet - 펫 정보 (없으면 null)
+ * @returns {string} return.pet.name - 펫 이름
+ * @returns {string} return.pet.imageUrl - 이미지 URL
+ * @returns {string} return.pet.updatedAt - 마지막 업데이트 시간
+ *
+ * @example
+ * const { pet } = await getPet()
+ * if (pet) {
+ *   console.log(pet.name, pet.imageUrl)
+ * }
+ */
+export async function getPet() {
+  return apiRequest(
+    {
+      action: 'get_pet',
+    },
+    'GetPet'
+  )
+}
+
+/**
+ * 펫 정보 및 이미지 삭제
+ *
+ * @returns {Promise<Object>} 삭제 결과
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {boolean} return.deleted - 삭제 여부
+ *
+ * @example
+ * await deletePet()
+ */
+export async function deletePet() {
+  return apiRequest(
+    {
+      action: 'delete_pet',
+    },
+    'DeletePet'
+  )
+}
+
+// ============================================
+// 커스텀 튜터 API
+// ============================================
+
+/**
+ * 커스텀 튜터 정보를 서버에 저장
+ *
+ * @param {Object} tutorData - 튜터 데이터
+ * @returns {Promise<Object>} 저장 결과
+ */
+export async function saveCustomTutor(tutorData) {
+  return apiRequest(
+    {
+      action: 'save_custom_tutor',
+      tutor: tutorData,
+    },
+    'SaveCustomTutor'
+  )
+}
+
+/**
+ * 서버에서 커스텀 튜터 정보 조회 (presigned URL 포함)
+ *
+ * @returns {Promise<Object>} 튜터 정보
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {Object|null} return.tutor - 튜터 정보 (없으면 null)
+ */
+export async function getCustomTutor() {
+  return apiRequest(
+    {
+      action: 'get_custom_tutor',
+    },
+    'GetCustomTutor'
+  )
+}
+
+/**
+ * 커스텀 튜터 정보 및 이미지 삭제
+ *
+ * @returns {Promise<Object>} 삭제 결과
+ */
+export async function deleteCustomTutor() {
+  return apiRequest(
+    {
+      action: 'delete_custom_tutor',
+    },
+    'DeleteCustomTutor'
+  )
+}
+
+// ============================================
+// 음성 클로닝 API (ElevenLabs)
+// ============================================
+
+/**
+ * 음성 클로닝 - 사용자 음성으로 AI 튜터 음성 생성
+ *
+ * @param {string} audioBase64 - Base64 인코딩된 오디오 데이터 (webm/mp3)
+ * @param {string} voiceName - 음성 이름 (튜터 이름)
+ * @returns {Promise<Object>} 클로닝 결과
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {string} return.voiceId - 생성된 ElevenLabs Voice ID
+ * @returns {string} return.voiceName - 음성 이름
+ *
+ * @example
+ * const result = await cloneVoice(audioBase64, 'My Tutor')
+ * console.log(result.voiceId) // 'abc123...'
+ */
+export async function cloneVoice(audioBase64, voiceName) {
+  return apiRequest(
+    {
+      action: 'clone_voice',
+      audio: audioBase64,
+      voiceName,
+    },
+    'CloneVoice'
+  )
+}
+
+/**
+ * 클로닝된 음성으로 TTS 생성 (ElevenLabs)
+ *
+ * @param {string} text - 변환할 텍스트
+ * @param {string} voiceId - ElevenLabs Voice ID
+ * @param {Object} [settings] - 추가 설정
+ * @returns {Promise<Object>} TTS 응답
+ * @returns {string} return.audio - Base64 인코딩된 오디오
+ *
+ * @example
+ * const response = await textToSpeechWithCustomVoice('Hello!', voiceId)
+ * await playAudioBase64(response.audio)
+ */
+export async function textToSpeechWithCustomVoice(text, voiceId, settings = null) {
+  const currentSettings = settings || getTutorSettings()
+
+  return apiRequest(
+    {
+      action: 'tts_custom_voice',
+      text,
+      voiceId,
+      settings: currentSettings,
+    },
+    'TTSCustomVoice'
+  )
+}
+
+// ============================================
+// 사용자 메모리 API (세션 간 기억)
+// ============================================
+
+/**
+ * 사용자 메모리 조회
+ * 이전 대화에서 기억한 사용자 정보 가져오기
+ *
+ * @returns {Promise<Object>} 메모리 정보
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {Object} return.memory - 저장된 메모리 (이름, 직업, 취미 등)
+ *
+ * @example
+ * const { memory } = await getUserMemory()
+ * console.log(memory.name, memory.job)
+ */
+export async function getUserMemory() {
+  return apiRequest(
+    {
+      action: 'get_user_memory',
+    },
+    'GetUserMemory'
+  )
+}
+
+/**
+ * 사용자 메모리 저장
+ * 대화에서 알게 된 사용자 정보 저장
+ *
+ * @param {Object} memory - 저장할 메모리 객체
+ * @param {string} [memory.name] - 사용자 이름
+ * @param {string} [memory.job] - 직업
+ * @param {string[]} [memory.hobbies] - 취미 목록
+ * @returns {Promise<Object>} 저장 결과
+ *
+ * @example
+ * await saveUserMemory({ name: 'John', job: 'Engineer' })
+ */
+export async function saveUserMemory(memory) {
+  return apiRequest(
+    {
+      action: 'save_user_memory',
+      memory,
+    },
+    'SaveUserMemory'
+  )
+}
+
+/**
+ * 대화에서 사용자 정보 추출
+ * AI가 대화 내용을 분석하여 사용자 정보 자동 추출 및 저장
+ *
+ * @param {Array} messages - 대화 메시지 배열
+ * @returns {Promise<Object>} 추출 결과
+ * @returns {boolean} return.success - 성공 여부
+ * @returns {Object} return.extracted - 추출된 정보
+ *
+ * @example
+ * const { extracted } = await extractUserInfo(messages)
+ * console.log(extracted) // { name: 'John', job: 'Engineer', hobbies: ['coding'] }
+ */
+export async function extractUserInfo(messages) {
+  return apiRequest(
+    {
+      action: 'extract_user_info',
+      messages,
+    },
+    'ExtractUserInfo'
+  )
+}

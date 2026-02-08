@@ -15,6 +15,9 @@ import Script from './pages/Script'
 import Analysis from './pages/Analysis'
 import Practice from './pages/Practice'
 import IncomingCall from './pages/IncomingCall'
+import MorningQuiz from './pages/MorningQuiz'
+import ReviewCall from './pages/ReviewCall'
+import StreakStats from './pages/StreakStats'
 import { notificationService } from './services/notificationService'
 import { UserSettingsProvider, UsageProvider } from './context'
 import { UpgradeModal } from './components'
@@ -92,6 +95,9 @@ function AppContent() {
       <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
       <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
       <Route path="/incoming-call" element={<ProtectedRoute><IncomingCall /></ProtectedRoute>} />
+      <Route path="/morning-quiz" element={<ProtectedRoute><MorningQuiz /></ProtectedRoute>} />
+      <Route path="/review-call" element={<ProtectedRoute><ReviewCall /></ProtectedRoute>} />
+      <Route path="/stats" element={<ProtectedRoute><StreakStats /></ProtectedRoute>} />
     </Routes>
   )
 }

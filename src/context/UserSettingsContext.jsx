@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useCallback } from 'react'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { DEFAULT_SETTINGS, ACCENT_LABELS, TUTORS, STORAGE_KEYS } from '../constants'
+import { getFromStorage } from '../utils/helpers'
 
 /**
  * 사용자 설정 Context
@@ -23,11 +24,21 @@ export function UserSettingsProvider({ children }) {
     DEFAULT_SETTINGS
   )
 
-  // 기본값과 병합된 설정
-  const settings = useMemo(() => ({
-    ...DEFAULT_SETTINGS,
-    ...storedSettings
-  }), [storedSettings])
+  // 기본값과 병합된 설정 (커스텀 튜터 voiceId 포함)
+  const settings = useMemo(() => {
+    const baseSettings = {
+      ...DEFAULT_SETTINGS,
+      ...storedSettings
+    }
+
+    // 커스텀 튜터가 선택되어 있고 voiceId가 있으면 포함
+    const customTutor = getFromStorage(STORAGE_KEYS.CUSTOM_TUTOR, null)
+    if (storedSettings.tutorId === 'custom-tutor' && customTutor?.voiceId) {
+      baseSettings.voiceId = customTutor.voiceId
+    }
+
+    return baseSettings
+  }, [storedSettings])
 
   // 튜터 이름 계산
   const tutorName = useMemo(() => {
@@ -38,7 +49,7 @@ export function UserSettingsProvider({ children }) {
     return matchingTutor?.name || 'Gwen'
   }, [settings.tutorName, settings.gender])
 
-  // 현재 선택된 튜터 객체
+  // 현재 선택된 튜터 객체 (기본 튜터용 폴백)
   const currentTutor = useMemo(() => {
     return TUTORS.find(t =>
       t.accent === settings.accent &&
@@ -46,11 +57,12 @@ export function UserSettingsProvider({ children }) {
     ) || TUTORS[0]
   }, [settings.accent, settings.gender])
 
-  // 파생 데이터
+  // 파생 데이터 - 저장된 설정값 우선 사용
   const tutorInitial = tutorName[0] || 'G'
+  const tutorImage = settings.tutorImage || currentTutor?.image || null
   const accentLabel = ACCENT_LABELS[settings.accent] || '미국'
   const genderLabel = settings.gender === 'male' ? '남성' : '여성'
-  const personalityTags = currentTutor?.tags || ['밝은', '활기찬']
+  const personalityTags = settings.personalityTags || currentTutor?.tags || ['밝은', '활기찬']
 
   // 설정 업데이트 (부분 업데이트)
   const updateSettings = useCallback((updates) => {
@@ -87,6 +99,7 @@ export function UserSettingsProvider({ children }) {
     // 파생 데이터
     tutorName,
     tutorInitial,
+    tutorImage,
     currentTutor,
     accentLabel,
     genderLabel,
@@ -105,6 +118,7 @@ export function UserSettingsProvider({ children }) {
     settings,
     tutorName,
     tutorInitial,
+    tutorImage,
     currentTutor,
     accentLabel,
     genderLabel,

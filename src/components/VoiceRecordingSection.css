@@ -1,0 +1,342 @@
+/**
+ * VoiceRecordingSection 스타일
+ * ringgle-v2 톤앤매너 유지 - 프리미엄 기능
+ */
+
+.voice-recording-section {
+  margin-bottom: 28px;
+  padding: 0 20px;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.voice-recording-section .section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  padding: 0;
+}
+
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.voice-recording-section .section-desc {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.voice-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+}
+
+/* 튜터 연결 상태 */
+.tutor-connection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.tutor-avatar-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tutor-avatar-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tutor-connection-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tutor-connection-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+}
+
+.tutor-connection-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 500;
+}
+
+/* 사용 안내 */
+.voice-guide {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.voice-guide strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* 성별 선택 */
+.gender-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #fafafa;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.gender-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.gender-options {
+  display: flex;
+  gap: 8px;
+}
+
+.gender-btn {
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gender-btn.active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
+.gender-btn:active {
+  transform: scale(0.96);
+}
+
+.sample-sentence {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.sample-label {
+  font-size: 11px;
+  color: #999;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.sample-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* 녹음 컨트롤 */
+.voice-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.record-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.record-btn:active {
+  transform: scale(0.96);
+}
+
+.record-btn.recording {
+  background: #e74c3c;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* 녹음 완료 후 컨트롤 */
+.recorded-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.playback-btn {
+  width: 44px;
+  height: 44px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.playback-btn:active {
+  transform: scale(0.95);
+}
+
+.recorded-time {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  min-width: 40px;
+}
+
+.reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.reset-btn:active {
+  background: #e0e0e0;
+}
+
+/* 클로닝 버튼 */
+.clone-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clone-btn:disabled {
+  background: #ddd;
+  color: #999;
+}
+
+.clone-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.clone-btn .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 클로닝 완료 */
+.voice-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: #e8f5e9;
+  border-radius: 12px;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.reset-voice-btn {
+  margin-left: 12px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #2e7d32;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #2e7d32;
+  cursor: pointer;
+}
+
+.reset-voice-btn:active {
+  background: #f0f0f0;
+}
+
+/* 에러 메시지 */
+.voice-recording-section .error-message {
+  font-size: 13px;
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 12px;
+}

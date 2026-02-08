@@ -1,14 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Phone, ChevronLeft, ChevronRight, Flame, Check, User, LogOut, RotateCcw, FileText, TrendingUp } from 'lucide-react'
-import { LoadingSpinner, UsageCard } from '../components'
-import { getSessions } from '../utils/api'
+import { Phone, ChevronLeft, ChevronRight, Flame, Check, User, LogOut, RotateCcw, FileText, TrendingUp, Sparkles } from 'lucide-react'
+import { LoadingSpinner, UsageCard, LearningCalendar, DailyScheduleInput, CustomTutorModal } from '../components'
+import TodayProgress from '../components/TodayProgress'
+import IncomingCallOverlay from '../components/IncomingCallOverlay'
+import { getSessions, getPet } from '../utils/api'
 import { formatDuration, getFromStorage, setToStorage } from '../utils/helpers'
 import { haptic } from '../utils/capacitor'
 import { useApiCall } from '../hooks'
 import { useUserSettings } from '../context'
 import { useAuth } from '../auth'
 import { notificationService } from '../services/notificationService'
+import { checkAutoSchedule, navigateToFeature, saveLastExecutionTime, getScheduleSettings, saveScheduleSettings } from '../utils/featureScheduler'
+import { STORAGE_KEYS } from '../constants'
 import './Home.css'
 
 function Home() {
@@ -20,6 +24,23 @@ function Home() {
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [streak, setStreak] = useState(1)
   const [weeklyProgress, setWeeklyProgress] = useState({ completed: 0, goal: 5 })
+
+  // 학습 사이클 상태
+  const [showAutoPopup, setShowAutoPopup] = useState(false)
+  const [autoPopupType, setAutoPopupType] = useState(null)
+  const [showCustomTutorModal, setShowCustomTutorModal] = useState(false)
+  const [customTutor, setCustomTutor] = useState(() => getFromStorage(STORAGE_KEYS.CUSTOM_TUTOR, null))
+
+  // 펫 프로필 상태
+  const [petData, setPetData] = useState(null)
+  const [usePetAsProfile, setUsePetAsProfile] = useState(() => getFromStorage('usePetAsProfile', false))
+
+  // 스케줄 설정 상태
+  const [scheduleSettings, setScheduleSettings] = useState(() => getScheduleSettings())
+
+  // 캘린더 날짜 선택 상태
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null)
+  const [selectedDateData, setSelectedDateData] = useState(null)
 
   const { user, signOut } = useAuth()
 
@@ -38,6 +59,115 @@ function Home() {
     }
   }, [])
 
+  // 펫 프로필 로드
+  useEffect(() => {
+    const loadPetData = async () => {
+      // 설정 확인
+      const usePet = getFromStorage('usePetAsProfile', false)
+      setUsePetAsProfile(usePet)
+      console.log('[Home] usePetAsProfile:', usePet)
+
+      try {
+        const response = await getPet()
+        console.log('[Home] getPet response:', response)
+        if (response.success && response.pet) {
+          setPetData({
+            image: response.pet.imageUrl,
+            name: response.pet.name
+          })
+          console.log('[Home] Pet loaded from server:', response.pet.imageUrl)
+        } else {
+          const localPet = getFromStorage(STORAGE_KEYS.PET_CHARACTER, null)
+          console.log('[Home] Using local pet:', localPet)
+          if (localPet) setPetData(localPet)
+        }
+      } catch (err) {
+        console.error('[Home] getPet error:', err)
+        const localPet = getFromStorage(STORAGE_KEYS.PET_CHARACTER, null)
+        if (localPet) setPetData(localPet)
+      }
+    }
+    loadPetData()
+  }, [])
+
+  // 자동 스케줄 체크 (1분 간격)
+  useEffect(() => {
+    const checkSchedule = () => {
+      const featureType = checkAutoSchedule()
+      if (featureType && !showAutoPopup) {
+        setAutoPopupType(featureType)
+        setShowAutoPopup(true)
+      }
+    }
+
+    // 초기 체크
+    checkSchedule()
+
+    // 1분 간격 체크
+    const intervalId = setInterval(checkSchedule, 60000)
+
+    return () => clearInterval(intervalId)
+  }, [showAutoPopup])
+
+  // 자동 팝업 수락
+  const handleAutoPopupAccept = () => {
+    setShowAutoPopup(false)
+    if (autoPopupType) {
+      saveLastExecutionTime(autoPopupType)
+      navigateToFeature(navigate, autoPopupType)
+    }
+  }
+
+  // 자동 팝업 닫기
+  const handleAutoPopupDismiss = () => {
+    setShowAutoPopup(false)
+    if (autoPopupType) {
+      saveLastExecutionTime(autoPopupType)
+    }
+  }
+
+  // 나만의 튜터 버튼 클릭
+  const handleCustomTutorClick = () => {
+    haptic.light()
+    setShowCustomTutorModal(true)
+  }
+
+  // 커스텀 튜터 저장
+  const handleCustomTutorSave = (data) => {
+    setCustomTutor(data)
+    // Context도 업데이트하여 메인 튜터 카드에 반영
+    updateSettings({
+      tutor: data.id,
+      tutorId: data.id,
+      tutorName: data.name,
+      tutorImage: data.image,
+      accent: data.accent,
+      gender: data.gender,
+      conversationStyle: data.conversationStyle || 'teacher',
+      isCustomTutor: true,
+    })
+  }
+
+  // 스케줄 설정 업데이트
+  const handleScheduleChange = (key, value) => {
+    haptic.light()
+    const newSettings = saveScheduleSettings({ [key]: value })
+    setScheduleSettings(newSettings)
+  }
+
+  // 캘린더 날짜 선택 핸들러
+  const handleCalendarDateSelect = (date, data) => {
+    setSelectedCalendarDate(date)
+    setSelectedDateData(data)
+  }
+
+  // 선택된 날짜 포맷
+  const formatSelectedDate = (date) => {
+    if (!date) return ''
+    const d = new Date(date)
+    return `${d.getMonth() + 1}월 ${d.getDate()}일`
+  }
+
   const handleLogout = async () => {
     haptic.medium()
     setShowProfileMenu(false)
@@ -53,9 +183,11 @@ function Home() {
   const {
     tutorName,
     tutorInitial,
+    tutorImage,
     accentLabel,
     genderLabel,
-    personalityTags
+    personalityTags,
+    updateSettings
   } = useUserSettings()
 
   // API 호출 훅으로 세션 로드 관리
@@ -176,7 +308,7 @@ function Home() {
       <header className="ringle-header">
         <h1>AI 전화</h1>
         <div className="header-icons">
-          <button className="streak-badge" onClick={() => handleTabChange('history')}>
+          <button className="streak-badge" onClick={() => { haptic.light(); navigate('/stats') }}>
             <Flame size={18} color="#fff" fill="#fff" />
             <span className="streak-count">{streak}</span>
           </button>
@@ -185,7 +317,9 @@ function Home() {
               className="profile-btn"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
-              {user?.attributes?.picture ? (
+              {usePetAsProfile && petData?.image ? (
+                <img src={petData.image} alt={petData.name || ''} className="profile-img" />
+              ) : user?.attributes?.picture ? (
                 <img src={user.attributes.picture} alt="" className="profile-img" />
               ) : (
                 <User size={20} color="#666" />
@@ -224,10 +358,16 @@ function Home() {
           맞춤설정
         </button>
         <button
+          className={`tab ${activeTab === 'schedule' ? 'active' : ''}`}
+          onClick={() => handleTabChange('schedule')}
+        >
+          스케줄
+        </button>
+        <button
           className={`tab ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => handleTabChange('history')}
         >
-          전화내역
+          내역
         </button>
       </div>
 
@@ -235,11 +375,18 @@ function Home() {
       <div className="main-content">
         {activeTab === 'call' && (
           <>
+            {/* 오늘의 학습 진행률 */}
+            <TodayProgress />
+
             {/* Tutor Card - 링글 스타일 (클릭 시 튜터 설정) */}
             <div className="tutor-card" onClick={() => handleNavClick(() => navigate('/settings/tutor'))}>
               <div className="tutor-avatar-wrapper">
                 <div className="tutor-avatar">
-                  <span>{tutorInitial}</span>
+                  {tutorImage ? (
+                    <img src={tutorImage} alt={tutorName} className="tutor-avatar-img" />
+                  ) : (
+                    <span>{tutorInitial}</span>
+                  )}
                 </div>
               </div>
 
@@ -264,7 +411,126 @@ function Home() {
             <button className="call-btn" onClick={handleCall}>
               바로 전화하기
             </button>
+
+            {/* 나만의 AI 튜터 버튼 */}
+            <button className="custom-tutor-btn" onClick={handleCustomTutorClick}>
+              <Sparkles size={20} />
+              <span>나만의 튜터 만들기</span>
+            </button>
           </>
+        )}
+
+        {activeTab === 'schedule' && (
+          <div className="schedule-section">
+            {/* 월간 학습 캘린더 */}
+            <LearningCalendar onDateSelect={handleCalendarDateSelect} />
+
+            {/* 선택된 날짜 학습 내역 */}
+            {selectedCalendarDate && (
+              <div className="selected-date-card">
+                <div className="selected-date-header">
+                  <span className="selected-date-title">{formatSelectedDate(selectedCalendarDate)}</span>
+                  <button
+                    className="selected-date-close"
+                    onClick={() => {
+                      setSelectedCalendarDate(null)
+                      setSelectedDateData(null)
+                    }}
+                  >
+                    닫기
+                  </button>
+                </div>
+                {selectedDateData ? (
+                  <div className="selected-date-items">
+                    <div className={`selected-date-item ${selectedDateData.quiz ? 'done' : ''}`}>
+                      <span className="item-label">퀴즈</span>
+                      <span className="item-status">{selectedDateData.quiz ? '완료' : '미완료'}</span>
+                    </div>
+                    <div className={`selected-date-item ${selectedDateData.call ? 'done' : ''}`}>
+                      <span className="item-label">수업</span>
+                      <span className="item-status">{selectedDateData.call ? '완료' : '미완료'}</span>
+                    </div>
+                    <div className={`selected-date-item ${selectedDateData.review ? 'done' : ''}`}>
+                      <span className="item-label">복습</span>
+                      <span className="item-status">{selectedDateData.review ? '완료' : '미완료'}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="selected-date-empty">학습 기록이 없어요</p>
+                )}
+              </div>
+            )}
+
+            {/* 오늘의 일정 입력 */}
+            <DailyScheduleInput />
+
+            {/* 알림 설정 */}
+            <div className="schedule-settings">
+              <h3 className="schedule-settings-title">알림 설정</h3>
+
+              {/* 모닝 퀴즈 */}
+              <div className="schedule-item">
+                <div className="schedule-item-left">
+                  <span className="schedule-item-title">모닝 퀴즈</span>
+                  {scheduleSettings.morningQuizEnabled && (
+                    <input
+                      type="time"
+                      value={scheduleSettings.morningQuizTime}
+                      onChange={(e) => handleScheduleChange('morningQuizTime', e.target.value)}
+                      className="schedule-time"
+                    />
+                  )}
+                </div>
+                <label className="schedule-toggle">
+                  <input
+                    type="checkbox"
+                    checked={scheduleSettings.morningQuizEnabled}
+                    onChange={(e) => handleScheduleChange('morningQuizEnabled', e.target.checked)}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+
+              {/* 복습 전화 */}
+              <div className="schedule-item">
+                <div className="schedule-item-left">
+                  <span className="schedule-item-title">복습 전화</span>
+                  {scheduleSettings.reviewCallEnabled && (
+                    <input
+                      type="time"
+                      value={scheduleSettings.reviewCallTime}
+                      onChange={(e) => handleScheduleChange('reviewCallTime', e.target.value)}
+                      className="schedule-time"
+                    />
+                  )}
+                </div>
+                <label className="schedule-toggle">
+                  <input
+                    type="checkbox"
+                    checked={scheduleSettings.reviewCallEnabled}
+                    onChange={(e) => handleScheduleChange('reviewCallEnabled', e.target.checked)}
+                  />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
+            </div>
+
+            {/* 바로가기 버튼 */}
+            <div className="schedule-shortcuts">
+              <button
+                className="shortcut-btn"
+                onClick={() => handleNavClick(() => navigate('/morning-quiz'))}
+              >
+                모닝 퀴즈 시작
+              </button>
+              <button
+                className="shortcut-btn"
+                onClick={() => handleNavClick(() => navigate('/review-call'))}
+              >
+                복습 전화 시작
+              </button>
+            </div>
+          </div>
         )}
 
         {activeTab === 'history' && (
@@ -419,6 +685,22 @@ function Home() {
         )}
       </div>
 
+      {/* 자동 팝업 오버레이 */}
+      {showAutoPopup && (
+        <IncomingCallOverlay
+          type={autoPopupType}
+          onAccept={handleAutoPopupAccept}
+          onDismiss={handleAutoPopupDismiss}
+        />
+      )}
+
+      {/* 나만의 AI 튜터 모달 */}
+      <CustomTutorModal
+        isOpen={showCustomTutorModal}
+        onClose={() => setShowCustomTutorModal(false)}
+        onSave={handleCustomTutorSave}
+        existingTutor={customTutor}
+      />
     </div>
   )
 }

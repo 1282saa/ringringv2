@@ -1,0 +1,459 @@
+/**
+ * MorningQuiz 스타일
+ * ringgle-v2 톤앤매너 유지 (미니멀 & 프리미엄)
+ */
+
+.morning-quiz {
+  min-height: 100vh;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 헤더 */
+.mq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+  background: #fafafa;
+}
+
+.mq-back-btn {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  cursor: pointer;
+}
+
+.mq-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+.mq-progress-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+}
+
+.mq-header-spacer {
+  width: 40px;
+}
+
+/* 진행률 바 */
+.mq-progress-bar {
+  height: 4px;
+  background: #eee;
+  margin: 0 20px 20px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mq-progress-fill {
+  height: 100%;
+  background: #111;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* 컨텐츠 */
+.mq-content {
+  flex: 1;
+  padding: 0 20px;
+  overflow-y: auto;
+}
+
+/* 문제 섹션 */
+.mq-question-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.mq-question-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: #111;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+/* 오디오 플레이어 */
+.mq-audio-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.mq-play-btn {
+  width: 80px;
+  height: 80px;
+  background: #111;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 12px;
+}
+
+.mq-play-btn:active {
+  transform: scale(0.95);
+}
+
+.mq-play-btn.playing {
+  background: #333;
+}
+
+.mq-play-btn.loading {
+  opacity: 0.7;
+}
+
+.mq-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.mq-audio-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #888;
+}
+
+.mq-replay-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-bottom: 20px;
+}
+
+.mq-replay-btn:active {
+  background: #eee;
+}
+
+.mq-question-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  line-height: 1.5;
+}
+
+/* 보기 섹션 */
+.mq-options-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mq-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mq-option-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.mq-option-btn.selected {
+  border-color: #111;
+  background: #fafafa;
+}
+
+.mq-option-btn.correct {
+  border-color: #22c55e;
+  background: #f0fdf4;
+}
+
+.mq-option-btn.wrong {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.mq-option-number {
+  width: 28px;
+  height: 28px;
+  background: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.mq-option-btn.selected .mq-option-number {
+  background: #111;
+  color: #fff;
+}
+
+.mq-option-btn.correct .mq-option-number {
+  background: #22c55e;
+  color: #fff;
+}
+
+.mq-option-btn.wrong .mq-option-number {
+  background: #ef4444;
+  color: #fff;
+}
+
+.mq-option-text {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.mq-option-icon {
+  flex-shrink: 0;
+}
+
+.mq-option-icon.correct {
+  color: #22c55e;
+}
+
+.mq-option-icon.wrong {
+  color: #ef4444;
+}
+
+/* 하단 버튼 */
+.mq-footer {
+  padding: 16px 20px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  background: #fafafa;
+}
+
+.mq-action-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mq-check-btn {
+  background: #111;
+  color: #fff;
+}
+
+.mq-check-btn:disabled {
+  background: #ddd;
+  color: #999;
+}
+
+.mq-check-btn:active:not(:disabled) {
+  background: #333;
+  transform: scale(0.98);
+}
+
+.mq-next-btn {
+  background: #111;
+  color: #fff;
+}
+
+.mq-next-btn:active {
+  background: #333;
+  transform: scale(0.98);
+}
+
+/* 결과 화면 */
+.mq-result {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.mq-result-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 24px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mq-result-emoji {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+.mq-result-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 20px;
+}
+
+.mq-result-bar {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.mq-result-fill {
+  height: 100%;
+  background: #111;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.mq-result-percent {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* 틀린 문제 섹션 */
+.mq-wrong-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.mq-wrong-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 16px;
+}
+
+.mq-wrong-card {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.mq-wrong-card:last-child {
+  margin-bottom: 0;
+}
+
+.mq-wrong-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.mq-wrong-badge {
+  padding: 4px 8px;
+  background: #fef2f2;
+  color: #ef4444;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mq-wrong-number {
+  font-size: 12px;
+  color: #888;
+}
+
+.mq-wrong-text {
+  font-size: 14px;
+  color: #111;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.mq-focus-tag {
+  font-size: 12px;
+  color: #666;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* 결과 액션 */
+.mq-result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mq-start-btn {
+  width: 100%;
+  padding: 16px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mq-start-btn:active {
+  background: #333;
+  transform: scale(0.98);
+}
+
+.mq-retry-btn {
+  width: 100%;
+  padding: 14px;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mq-retry-btn:active {
+  background: #eee;
+}

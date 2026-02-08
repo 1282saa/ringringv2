@@ -1,0 +1,329 @@
+/**
+ * DailyScheduleInput 스타일
+ * 토스 스타일 - 미니멀 & 클린
+ */
+
+.daily-schedule {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+
+/* 헤더 */
+.ds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.ds-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ds-header-left h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.ds-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: #888;
+}
+
+.ds-add-btn {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ds-add-btn:active {
+  background: #f5f5f5;
+}
+
+/* 추가 폼 */
+.ds-add-form {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* 프리셋 버튼 */
+.ds-presets {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.ds-preset {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ds-preset:active {
+  background: #f5f5f5;
+}
+
+.ds-preset.active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
+/* 입력 행 */
+.ds-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ds-time-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 0 12px;
+  min-width: 110px;
+}
+
+.ds-time-input input {
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #111;
+  padding: 12px 0;
+  width: 70px;
+  outline: none;
+}
+
+.ds-time-input input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.ds-title-input {
+  flex: 1;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #111;
+  outline: none;
+}
+
+.ds-title-input:focus {
+  border-color: #111;
+}
+
+.ds-title-input::placeholder {
+  color: #bbb;
+  font-weight: 400;
+}
+
+/* 영어 토글 */
+.ds-english-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.ds-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.ds-toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+}
+
+.ds-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ds-toggle-switch .toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #e5e5e5;
+  transition: 0.2s ease;
+  border-radius: 13px;
+}
+
+.ds-toggle-switch .toggle-slider::before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  transition: 0.2s ease;
+  border-radius: 50%;
+}
+
+.ds-toggle-switch input:checked + .toggle-slider {
+  background: #111;
+}
+
+.ds-toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(18px);
+}
+
+/* 추가 버튼 */
+.ds-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.ds-submit-btn:active {
+  opacity: 0.8;
+}
+
+/* 일정 목록 */
+.ds-events {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ds-event {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fafafa;
+  border-radius: 10px;
+}
+
+.ds-event.english {
+  background: #f0f7ff;
+}
+
+.ds-event-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  min-width: 60px;
+}
+
+.ds-event-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ds-event-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111;
+}
+
+.ds-english-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3b82f6;
+  background: #dbeafe;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.ds-delete-btn {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ds-delete-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+  color: #888;
+}
+
+/* 빈 상태 */
+.ds-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: #999;
+}
+
+.ds-empty p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 반응형 */
+@media (max-width: 360px) {
+  .daily-schedule {
+    padding: 16px;
+  }
+
+  .ds-input-row {
+    flex-direction: column;
+  }
+
+  .ds-time-input {
+    width: 100%;
+  }
+}

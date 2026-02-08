@@ -1,0 +1,222 @@
+/**
+ * StreakStats.css
+ * 학습 통계 페이지 스타일
+ */
+
+.streak-stats-page {
+  min-height: 100vh;
+  background: #111;
+  color: #fff;
+  padding: 0 0 40px;
+}
+
+/* 헤더 */
+.streak-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.streak-header .back-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 8px;
+  margin: -8px;
+  cursor: pointer;
+}
+
+/* 통계 요약 */
+.streak-summary {
+  padding: 20px;
+  text-align: left;
+}
+
+.streak-label {
+  font-size: 18px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.total-words {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.total-words .flame-icon {
+  color: #ff6b35;
+  fill: #ff6b35;
+}
+
+.total-words .word-count {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -2px;
+}
+
+.total-words .word-unit {
+  font-size: 24px;
+  color: #888;
+  margin-left: 4px;
+  align-self: flex-end;
+  margin-bottom: 12px;
+}
+
+.week-comparison {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.week-comparison .positive {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.week-comparison .negative {
+  color: #f87171;
+  font-weight: 600;
+}
+
+/* 캘린더 */
+.streak-calendar {
+  margin: 24px 16px;
+  background: #222;
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.calendar-header .nav-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 8px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.calendar-header .nav-btn:active {
+  opacity: 1;
+}
+
+.calendar-header .month-year {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.weekday-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 12px;
+}
+
+.weekday-labels .weekday {
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+  font-weight: 500;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 60px;
+}
+
+.calendar-day.empty {
+  visibility: hidden;
+}
+
+.day-flame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.day-flame svg {
+  position: absolute;
+}
+
+.day-flame.active svg {
+  color: #ff6b35;
+  fill: #ff6b35;
+}
+
+.day-flame.inactive svg {
+  color: #444;
+  fill: #444;
+}
+
+.day-flame .day-number {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  margin-top: 2px;
+}
+
+.day-words {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.calendar-day.today .day-flame .day-number {
+  color: #ff6b35;
+}
+
+/* 로딩 */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ff6b35;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Safe area */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .streak-header {
+    padding-top: calc(16px + env(safe-area-inset-top));
+  }
+}

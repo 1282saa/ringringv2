@@ -1,0 +1,232 @@
+/**
+ * PetUploadModal 스타일
+ * ringgle-v2 톤앤매너 유지
+ */
+
+.pet-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.pet-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.pet-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 360px;
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 헤더 */
+.pet-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pet-modal-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+.pet-modal-close {
+  width: 32px;
+  height: 32px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pet-modal-close:active {
+  background: #eee;
+}
+
+/* 컨텐츠 */
+.pet-modal-content {
+  padding: 24px 20px;
+}
+
+/* 업로드 영역 */
+.pet-upload-area {
+  width: 160px;
+  height: 160px;
+  background: #f5f5f5;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px dashed #ddd;
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.pet-upload-area:active {
+  background: #eee;
+}
+
+.pet-upload-area.has-image {
+  border: none;
+}
+
+.pet-upload-area p {
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+}
+
+.pet-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 이름 입력 */
+.pet-name-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #111;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.pet-name-input::placeholder {
+  color: #999;
+}
+
+.pet-name-input:focus {
+  outline: none;
+  background: #f0f0f0;
+}
+
+/* 안내 문구 */
+.pet-modal-hint {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+}
+
+/* 에러 메시지 */
+.pet-modal-error {
+  font-size: 13px;
+  color: #e74c3c;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* 버튼 */
+.pet-modal-buttons {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px 20px;
+}
+
+.pet-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 16px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pet-remove-btn:active {
+  background: #eee;
+}
+
+.pet-save-btn {
+  flex: 1;
+  padding: 14px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pet-save-btn:disabled {
+  background: #ddd;
+  color: #999;
+}
+
+.pet-save-btn:active:not(:disabled) {
+  background: #333;
+  transform: scale(0.98);
+}
+
+/* 저장 버튼 로딩 상태 */
+.pet-save-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 로딩 스피너 애니메이션 */
+.pet-save-btn .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

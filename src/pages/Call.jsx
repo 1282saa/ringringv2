@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mic, MicOff, Volume2, VolumeX, Captions, X } from 'lucide-react'
-import { sendMessage, textToSpeech, playAudioBase64, speechToText, startSession, endSession, saveMessage, translateText } from '../utils/api'
+import { sendMessage, textToSpeech, textToSpeechWithCustomVoice, playAudioBase64, speechToText, startSession, endSession, saveMessage, translateText, extractUserInfo } from '../utils/api'
 import { haptic, configureStatusBar } from '../utils/capacitor'
 import { TranscribeStreamingClient } from '../utils/transcribeStreaming'
 import { useUserSettings, useUsage } from '../context'
@@ -45,6 +45,8 @@ function Call() {
   const [messages, setMessages] = useState([])
   const [interimTranscript, setInterimTranscript] = useState('')
   const [currentSubtitle, setCurrentSubtitle] = useState('')
+  const [displayedSubtitle, setDisplayedSubtitle] = useState('') // 표시용
+  const [subtitleKey, setSubtitleKey] = useState(0) // 애니메이션 트리거용
   const [currentTranslation, setCurrentTranslation] = useState('')
   const [turnCount, setTurnCount] = useState(0)
   const [wordCount, setWordCount] = useState(0)
@@ -80,6 +82,10 @@ function Call() {
   const finalTranscriptRef = useRef('') // 최종 확정 텍스트
   const silenceAfterSpeechTimerRef = useRef(null) // 말 끝난 후 침묵 타이머
 
+  // 자막 스트리밍 효과용 refs
+  const subtitleStreamRef = useRef(null)
+  const subtitleWordsRef = useRef([])
+
   // Refs for closure-safe state access
   const isListeningRef = useRef(false)
   const isMutedRef = useRef(false)
@@ -89,7 +95,7 @@ function Call() {
   const audioInitializedRef = useRef(false) // Prevent double audio init in StrictMode
 
   // Context에서 튜터 설정 가져오기
-  const { settings, tutorName, tutorInitial, gender } = useUserSettings()
+  const { settings, tutorName, tutorInitial, tutorImage, gender } = useUserSettings()
 
   // 사용량 관리
   const { checkAndShowLimit, incrementLocal, canUse } = useUsage()
@@ -115,12 +121,25 @@ function Call() {
     return () => clearInterval(timerRef.current)
   }, [])
 
-  // 페이지 이탈 시 TTS 강제 중지
+  // 페이지 이탈 시 모든 오디오 강제 중지
   useEffect(() => {
     return () => {
+      // ElevenLabs/Polly 오디오 중지
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+        audioRef.current = null
+        console.log('[Audio] Audio element stopped on unmount')
+      }
+      // Web Speech API 중지
       if ('speechSynthesis' in window) {
         speechSynthesis.cancel()
         console.log('[TTS] Speech synthesis cancelled on unmount')
+      }
+      // 자막 스트리밍 중지
+      if (subtitleStreamRef.current) {
+        clearInterval(subtitleStreamRef.current)
+        subtitleStreamRef.current = null
       }
     }
   }, [])
@@ -169,7 +188,15 @@ function Call() {
   }
 
   const cleanupAudio = () => {
-    // TTS 음성 중지
+    // ElevenLabs/Polly 오디오 중지
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      audioRef.current = null
+      console.log('[Audio] Audio element stopped in cleanup')
+    }
+
+    // TTS 음성 중지 (Web Speech API)
     if ('speechSynthesis' in window) {
       speechSynthesis.cancel()
     }
@@ -567,6 +594,38 @@ function Call() {
     }
   }
 
+  // 자막 스트리밍 효과 (단어 단위로 자연스럽게 나타남)
+  const showSubtitleWithFade = (text) => {
+    const cleanedText = cleanSubtitleText(text)
+    if (!cleanedText) return
+
+    // 이전 스트리밍 중지
+    if (subtitleStreamRef.current) {
+      clearInterval(subtitleStreamRef.current)
+      subtitleStreamRef.current = null
+    }
+
+    // 단어 단위로 분리
+    const words = cleanedText.split(' ')
+    subtitleWordsRef.current = words
+    let currentIndex = 0
+
+    // 초기 상태
+    setDisplayedSubtitle('')
+    setSubtitleKey(prev => prev + 1)
+
+    // 단어별 스트리밍 (50ms 간격 = 초당 20단어)
+    subtitleStreamRef.current = setInterval(() => {
+      currentIndex++
+      if (currentIndex <= words.length) {
+        setDisplayedSubtitle(words.slice(0, currentIndex).join(' '))
+      } else {
+        clearInterval(subtitleStreamRef.current)
+        subtitleStreamRef.current = null
+      }
+    }, 60) // 60ms per word for natural reading speed
+  }
+
   const speakText = async (text) => {
     // 이미 재생 중인 오디오가 있으면 먼저 정지
     if (audioRef.current) {
@@ -580,6 +639,7 @@ function Call() {
 
     setIsSpeaking(true)
     setCurrentSubtitle(text)
+    showSubtitleWithFade(text) // 페이드인 효과
 
     if (!isSpeakerOn) {
       setTimeout(() => {
@@ -590,7 +650,15 @@ function Call() {
     }
 
     try {
-      const ttsResponse = await textToSpeech(text, settings)
+      let ttsResponse
+
+      // 커스텀 음성(voiceId)이 있으면 ElevenLabs 커스텀 TTS 사용
+      if (settings.voiceId) {
+        console.log('[TTS] Using custom voice:', settings.voiceId)
+        ttsResponse = await textToSpeechWithCustomVoice(text, settings.voiceId, settings)
+      } else {
+        ttsResponse = await textToSpeech(text, settings)
+      }
 
       if (ttsResponse.audio) {
         await playAudioBase64(ttsResponse.audio, audioRef)
@@ -855,6 +923,17 @@ function Call() {
       console.error('[DB] Failed to end session:', dbErr)
     }
 
+    // 대화에서 사용자 정보 추출 (비동기 - 백그라운드 처리)
+    if (messages.length >= 4) {
+      extractUserInfo(messages)
+        .then(res => {
+          if (res.extracted && Object.keys(res.extracted).length > 0) {
+            console.log('[Memory] Extracted user info:', Object.keys(res.extracted))
+          }
+        })
+        .catch(err => console.error('[Memory] Extract error:', err))
+    }
+
     const result = {
       duration: callTime,
       messages: messages,
@@ -887,9 +966,9 @@ function Call() {
 
   const getSubtitleContent = () => {
     if (subtitleMode === 'off') return null
-    if (subtitleMode === 'english') return cleanSubtitleText(currentSubtitle)
+    if (subtitleMode === 'english') return displayedSubtitle || ''
     if (subtitleMode === 'translation') return currentTranslation || '(번역 준비 중...)'
-    return cleanSubtitleText(currentSubtitle)
+    return displayedSubtitle || ''
   }
 
   const subtitleContent = getSubtitleContent()
@@ -900,7 +979,11 @@ function Call() {
       <div className="call-main">
         {/* Tutor Avatar */}
         <div className="tutor-avatar">
-          <span>{tutorInitial}</span>
+          {tutorImage ? (
+            <img src={tutorImage} alt={tutorName} className="tutor-avatar-img" />
+          ) : (
+            <span>{tutorInitial}</span>
+          )}
         </div>
 
         {/* Tutor Name */}
@@ -909,9 +992,9 @@ function Call() {
         {/* Call Timer */}
         <div className="call-timer">{formatTime(callTime)}</div>
 
-        {/* Subtitle Display */}
+        {/* Subtitle Display - 페이드인 효과 */}
         {subtitleMode !== 'off' && subtitleContent && (
-          <div className="subtitle-display">
+          <div className="subtitle-display" key={subtitleKey}>
             <p className="subtitle-text">{subtitleContent}</p>
             {subtitleMode === 'all' && currentTranslation && (
               <p className="subtitle-translation">{currentTranslation}</p>
@@ -1015,20 +1098,28 @@ function Call() {
         }
 
         .tutor-avatar {
-          width: 72px;
-          height: 72px;
+          width: 80px;
+          height: 80px;
           background: #fff;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: 16px;
+          overflow: hidden;
+          border: 3px solid rgba(255, 255, 255, 0.3);
         }
 
         .tutor-avatar span {
           font-size: 28px;
           font-weight: 600;
           color: #111;
+        }
+
+        .tutor-avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .tutor-name {
@@ -1049,6 +1140,7 @@ function Call() {
           width: 100%;
           padding: 0 20px;
           text-align: left;
+          min-height: 60px;
         }
 
         .subtitle-text {
@@ -1057,12 +1149,19 @@ function Call() {
           font-weight: 500;
           line-height: 1.5;
           margin-bottom: 8px;
+          transition: opacity 0.1s ease;
         }
 
         .subtitle-translation {
           color: rgba(255, 255, 255, 0.6);
           font-size: 16px;
           line-height: 1.4;
+          animation: translationFadeIn 0.4s ease-out both;
+        }
+
+        @keyframes translationFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
 
         .speaking-indicator {

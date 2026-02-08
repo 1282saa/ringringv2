@@ -1,0 +1,125 @@
+/**
+ * TodayProgress 스타일
+ * 토스 스타일 - 미니멀 & 클린
+ */
+
+.today-progress {
+  margin-bottom: 16px;
+}
+
+/* 메인 카드 */
+.tp-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.tp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.tp-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.tp-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+}
+
+/* 스텝 영역 */
+.tp-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.tp-step-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.tp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.tp-step:active {
+  opacity: 0.7;
+}
+
+/* 스텝 원형 */
+.tp-step-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #888;
+  background: #f5f5f5;
+  transition: all 0.2s ease;
+}
+
+.tp-step-circle.completed {
+  background: #111;
+  color: #fff;
+}
+
+.tp-step-circle.available {
+  background: #f5f5f5;
+  color: #888;
+}
+
+.tp-step-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #888;
+}
+
+.tp-step.completed .tp-step-label {
+  color: #111;
+  font-weight: 600;
+}
+
+/* 연결선 */
+.tp-connector {
+  width: 32px;
+  height: 2px;
+  background: #eee;
+}
+
+.tp-connector.completed {
+  background: #111;
+}
+
+/* 진행률 바 */
+.tp-progress-bar {
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tp-progress-fill {
+  height: 100%;
+  background: #111;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}

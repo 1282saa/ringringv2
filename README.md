@@ -183,6 +183,181 @@ eng-learning/
 
 ---
 
+## AWS Infrastructure
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                              Client (Web/Mobile)                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Amazon CloudFront (CDN)                           │
+│                     d3pw62uy753kuv.cloudfront.net                        │
+└─────────────────────────────────────────────────────────────────────────┘
+                          │                    │
+                          ▼                    ▼
+┌─────────────────────────────┐    ┌─────────────────────────────────────┐
+│      Amazon S3              │    │        API Gateway                   │
+│      eng-call               │    │   n4o7d3c14c.execute-api...          │
+│   (Frontend Hosting)        │    │        /prod/chat                    │
+└─────────────────────────────┘    └─────────────────────────────────────┘
+                                                  │
+                                                  ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         AWS Lambda                                       │
+│                      eng-learning-api                                    │
+│                     (Python 3.11, 256MB)                                 │
+└─────────────────────────────────────────────────────────────────────────┘
+         │           │           │           │           │           │
+         ▼           ▼           ▼           ▼           ▼           ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│   Bedrock   │ │  Transcribe │ │    Polly    │ │  Translate  │ │  DynamoDB   │
+│  Claude AI  │ │    (STT)    │ │   (TTS)     │ │             │ │             │
+└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
+                                                                       │
+                                                      ┌────────────────┴────────────────┐
+                                                      │       Amazon S3                  │
+                                                      │    eng-learning-audio            │
+                                                      │  (Audio files, Voice samples)    │
+                                                      └──────────────────────────────────┘
+```
+
+### AWS Services Detail
+
+#### 1. Frontend Hosting
+
+| Service | Resource | Region | Purpose |
+|---------|----------|--------|---------|
+| **S3** | `eng-call` | ap-northeast-2 | Static website hosting |
+| **CloudFront** | `E2EPS9DBLFD0FM` | Global | CDN, HTTPS |
+
+**URL**: https://d3pw62uy753kuv.cloudfront.net
+
+#### 2. Backend API
+
+| Service | Resource | Region | Purpose |
+|---------|----------|--------|---------|
+| **API Gateway** | REST API | us-east-1 | HTTP endpoint |
+| **Lambda** | `eng-learning-api` | us-east-1 | Serverless backend |
+
+**Endpoint**: `https://n4o7d3c14c.execute-api.us-east-1.amazonaws.com/prod/chat`
+
+**Lambda Configuration**:
+- Runtime: Python 3.11
+- Memory: 256 MB
+- Timeout: 60 seconds
+- Handler: `lambda_function.lambda_handler`
+
+#### 3. AI & ML Services
+
+| Service | Model/Feature | Purpose |
+|---------|---------------|---------|
+| **Amazon Bedrock** | Claude 3 Haiku | AI conversation, analysis, user info extraction |
+| **Amazon Transcribe** | Streaming & Batch | Speech-to-Text (실시간 음성인식) |
+| **Amazon Polly** | Neural voices | Text-to-Speech (AI 응답 음성화) |
+| **Amazon Translate** | - | 실시간 번역 (영어↔한국어) |
+
+#### 4. Database
+
+| Service | Table | Purpose |
+|---------|-------|---------|
+| **DynamoDB** | `eng-learning-conversations` | 대화 기록, 세션, 사용자 메모리 |
+
+**테이블 구조**:
+```
+PK (Partition Key)          SK (Sort Key)
+─────────────────────────────────────────────────
+DEVICE#{deviceId}           SESSION#{sessionId}#META      (세션 메타)
+DEVICE#{deviceId}           SESSION#{sessionId}#MSG#{n}   (메시지)
+DEVICE#{deviceId}           PET                           (펫 캐릭터)
+USER#{userId}               MEMORY                        (사용자 메모리)
+USER#{userId}               CUSTOM_VOICE                  (음성 클로닝)
+```
+
+**GSI (Global Secondary Index)**:
+- `GSI1`: `GSI1PK` - 세션별 데이터 조회용
+
+#### 5. Storage
+
+| Service | Bucket | Purpose |
+|---------|--------|---------|
+| **S3** | `eng-learning-audio` | STT 오디오 파일, 음성 샘플 |
+
+**폴더 구조**:
+```
+eng-learning-audio/
+├── audio/              # STT용 임시 오디오 파일
+├── pets/               # 펫 이미지
+│   └── {deviceId}/
+└── voice-samples/      # 음성 클로닝 샘플
+    └── {userId}/
+```
+
+#### 6. Security
+
+| Service | Resource | Purpose |
+|---------|----------|---------|
+| **Secrets Manager** | `ElevenLabs/ApiKey` | ElevenLabs API 키 저장 |
+| **IAM** | `eng-learning-lambda-role` | Lambda 실행 역할 |
+| **Cognito** | User Pool | 사용자 인증 |
+
+### External APIs
+
+| Service | Purpose | Integration |
+|---------|---------|-------------|
+| **ElevenLabs** | 고품질 TTS, 음성 클로닝 | REST API |
+| **Google Calendar** | 학습 기록 캘린더 연동 | OAuth 2.0 |
+
+### Cost Estimation (Monthly)
+
+| Service | Estimated Cost | Notes |
+|---------|----------------|-------|
+| Lambda | ~$5-15 | 요청 수에 따라 변동 |
+| Bedrock (Claude) | ~$10-30 | 토큰 사용량에 따라 변동 |
+| DynamoDB | ~$1-5 | On-demand 모드 |
+| S3 | ~$1-3 | 스토리지 + 요청 |
+| CloudFront | ~$1-5 | 트래픽에 따라 변동 |
+| Transcribe | ~$5-20 | 음성 시간에 따라 변동 |
+| Polly | ~$3-10 | 문자 수에 따라 변동 |
+| **Total** | **~$26-88** | 사용량에 따라 변동 |
+
+### Deployment Commands
+
+```bash
+# Frontend: Build & Deploy
+npm run build
+aws s3 sync dist/ s3://eng-call --delete
+aws cloudfront create-invalidation --distribution-id E2EPS9DBLFD0FM --paths "/*"
+
+# Backend: Deploy Lambda
+cd backend
+zip -j lambda_function.zip lambda_function.py
+aws lambda update-function-code \
+  --function-name eng-learning-api \
+  --zip-file fileb://lambda_function.zip \
+  --region us-east-1
+```
+
+### Environment Variables
+
+**Lambda Environment**:
+```
+AWS_REGION=us-east-1
+S3_BUCKET=eng-learning-audio
+DYNAMODB_TABLE=eng-learning-conversations
+```
+
+**Frontend (.env)**:
+```
+VITE_API_URL=https://n4o7d3c14c.execute-api.us-east-1.amazonaws.com/prod/chat
+VITE_GOOGLE_CLIENT_ID=408302746123-xxx.apps.googleusercontent.com
+```
+
+---
+
 ## API Reference
 
 **Endpoint:** `https://n4o7d3c14c.execute-api.us-east-1.amazonaws.com/prod/chat`

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { X, CheckCircle, Loader, Flame, TrendingUp, BookOpen, Calendar, ChevronRight } from 'lucide-react'
 import { analyzeConversation } from '../utils/api'
 import { formatDuration, getFromStorage, setToStorage } from '../utils/helpers'
+import { isGoogleCalendarConnected, addCompletedLearningEvent } from '../utils/googleCalendar'
 import { useLocalStorage } from '../hooks'
 import { useUserSettings } from '../context'
 import { STORAGE_KEYS } from '../constants'
@@ -43,6 +44,20 @@ function Result() {
     if (result?.wordCount) {
       setToStorage('previousWordCount', result.wordCount)
     }
+
+    // 구글 캘린더에 학습 완료 이벤트 추가
+    const addCalendarEvent = async () => {
+      if (isGoogleCalendarConnected() && result) {
+        try {
+          const duration = result.duration ? Math.round(result.duration / 60) : 10
+          await addCompletedLearningEvent('call', duration)
+          console.log('[Result] Calendar event added')
+        } catch (err) {
+          console.error('[Result] Calendar event error:', err)
+        }
+      }
+    }
+    addCalendarEvent()
   }, [result])
 
   const requestAnalysis = async () => {

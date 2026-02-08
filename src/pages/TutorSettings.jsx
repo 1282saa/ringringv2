@@ -5,10 +5,13 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Sparkles, Check } from 'lucide-react'
-import { TUTORS, DIFFICULTIES, DURATIONS, SPEEDS, ACCENTS, PRESETS } from '../constants'
+import { X, Sparkles, Check, Plus, Trash2 } from 'lucide-react'
+import { TUTORS, DIFFICULTIES, DURATIONS, SPEEDS, ACCENTS, PRESETS, STORAGE_KEYS } from '../constants'
 import { useUserSettings } from '../context'
 import { haptic } from '../utils/capacitor'
+import { getFromStorage, setToStorage } from '../utils/helpers'
+import { getCustomTutor, deleteCustomTutor } from '../utils/api'
+import { CustomTutorModal, VoiceRecordingSection } from '../components'
 
 function TutorSettings() {
   const navigate = useNavigate()
@@ -24,6 +27,8 @@ function TutorSettings() {
   const [currentPage, setCurrentPage] = useState(0)
   const [selectedPreset, setSelectedPreset] = useState(null)
   const [accentFilter, setAccentFilter] = useState('all')
+  const [showCustomTutorModal, setShowCustomTutorModal] = useState(false)
+  const [customTutor, setCustomTutor] = useState(null)
 
   useEffect(() => {
     // Context에서 저장된 값 로드
@@ -31,6 +36,27 @@ function TutorSettings() {
     if (settings.difficulty) setDifficulty(settings.difficulty)
     if (settings.speed) setSpeed(settings.speed)
     if (settings.duration) setDuration(settings.duration)
+
+    // 커스텀 튜터 로드 (서버 우선, 로컬 폴백)
+    const loadCustomTutor = async () => {
+      try {
+        const response = await getCustomTutor()
+        if (response.success && response.tutor) {
+          setCustomTutor(response.tutor)
+          // 로컬에도 캐싱 (오프라인용)
+          setToStorage(STORAGE_KEYS.CUSTOM_TUTOR, response.tutor)
+          return
+        }
+      } catch (err) {
+        console.warn('[TutorSettings] Server load failed:', err)
+      }
+      // 로컬 폴백
+      const savedCustomTutor = getFromStorage(STORAGE_KEYS.CUSTOM_TUTOR, null)
+      if (savedCustomTutor) {
+        setCustomTutor(savedCustomTutor)
+      }
+    }
+    loadCustomTutor()
 
     // 선택된 튜터로 스크롤
     const tutorIndex = TUTORS.findIndex(t => t.id === (settings.tutor || 'gwen'))
@@ -40,10 +66,11 @@ function TutorSettings() {
     }
   }, [])
 
-  // 필터링된 튜터 목록
+  // 필터링된 튜터 목록 (커스텀 튜터 포함)
+  const allTutors = customTutor ? [customTutor, ...TUTORS] : TUTORS
   const filteredTutors = accentFilter === 'all'
-    ? TUTORS
-    : TUTORS.filter(t => t.accent === accentFilter)
+    ? allTutors
+    : allTutors.filter(t => t.accent === accentFilter)
 
   // 프리셋 선택 시 설정 자동 적용
   const handlePresetSelect = (preset) => {
@@ -56,21 +83,69 @@ function TutorSettings() {
 
   const handleSave = () => {
     haptic.success()
-    // 선택된 튜터 정보 찾기
-    const tutor = TUTORS.find(t => t.id === selectedTutor) || TUTORS[0]
+
+    // 커스텀 튜터가 선택된 경우 명시적으로 처리
+    let tutor
+    if (selectedTutor === 'custom-tutor' && customTutor) {
+      tutor = customTutor
+      console.log('[TutorSettings] Using custom tutor:', customTutor.name, customTutor.image)
+    } else {
+      tutor = TUTORS.find(t => t.id === selectedTutor) || TUTORS[0]
+      console.log('[TutorSettings] Using default tutor:', tutor.name)
+    }
 
     // Context를 통해 설정 저장 (튜터 정보 포함)
     updateSettings({
       tutor: selectedTutor,
+      tutorId: selectedTutor,
       tutorName: tutor.name,
+      tutorImage: tutor.image,
       accent: tutor.accent,
       gender: tutor.gender,
+      conversationStyle: tutor.conversationStyle || 'teacher',
+      isCustomTutor: tutor.isCustom || false,
+      personalityTags: tutor.tags || [],
       difficulty,
       speed,
       duration,
       preset: selectedPreset,
     })
     navigate(-1)
+  }
+
+  // 커스텀 튜터 저장 핸들러
+  const handleCustomTutorSave = (tutorData) => {
+    setCustomTutor(tutorData)
+    setSelectedTutor(tutorData.id)
+    setCurrentPage(0)
+    setTimeout(() => {
+      if (carouselRef.current) {
+        carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' })
+      }
+    }, 100)
+  }
+
+  // 커스텀 튜터 삭제 핸들러
+  const handleCustomTutorDelete = () => {
+    setCustomTutor(null)
+    setSelectedTutor('gwen') // 기본 튜터로 변경
+    setCurrentPage(0)
+  }
+
+  // 카드에서 직접 삭제
+  const handleDirectDelete = async (e) => {
+    e.stopPropagation()
+    haptic.medium()
+
+    try {
+      await deleteCustomTutor()
+      setToStorage(STORAGE_KEYS.CUSTOM_TUTOR, null)
+      setCustomTutor(null)
+      setSelectedTutor('gwen')
+      setCurrentPage(0)
+    } catch (err) {
+      console.error('[TutorSettings] Delete error:', err)
+    }
   }
 
   const handleScroll = () => {
@@ -189,14 +264,48 @@ function TutorSettings() {
             ref={carouselRef}
             onScroll={handleScroll}
           >
+            {/* 나만의 튜터 만들기 카드 */}
+            <div
+              className="tutor-card create-card"
+              onClick={() => {
+                haptic.medium()
+                setShowCustomTutorModal(true)
+              }}
+            >
+              <div className="tutor-avatar create-avatar">
+                <Plus size={28} color="#888" />
+              </div>
+              <div className="tutor-info">
+                <span className="tutor-meta">직접 만들기</span>
+                <h3 className="tutor-name">나만의 튜터</h3>
+                <div className="tutor-tags">
+                  <span className="tutor-tag">커스텀</span>
+                </div>
+              </div>
+            </div>
+
             {filteredTutors.map((tutor, index) => (
               <div
                 key={tutor.id}
-                className={`tutor-card ${selectedTutor === tutor.id ? 'selected' : ''}`}
-                onClick={() => scrollToTutor(index)}
+                className={`tutor-card ${selectedTutor === tutor.id ? 'selected' : ''} ${tutor.isCustom ? 'custom' : ''}`}
+                onClick={() => {
+                  if (tutor.isCustom) {
+                    // 커스텀 튜터 클릭 시 선택 + 편집 모달 열기
+                    haptic.medium()
+                    setSelectedTutor(tutor.id)
+                    setCurrentPage(index)
+                    setShowCustomTutorModal(true)
+                  } else {
+                    scrollToTutor(index)
+                  }
+                }}
               >
                 <div className="tutor-avatar">
-                  <span>{tutor.name.charAt(0)}</span>
+                  {tutor.image ? (
+                    <img src={tutor.image} alt={tutor.name} className="tutor-avatar-img" />
+                  ) : (
+                    <span>{tutor.name.charAt(0)}</span>
+                  )}
                 </div>
                 <div className="tutor-info">
                   <span className="tutor-meta">{tutor.nationality} {tutor.genderLabel}</span>
@@ -207,6 +316,17 @@ function TutorSettings() {
                     ))}
                   </div>
                 </div>
+                {tutor.isCustom && (
+                  <>
+                    <span className="custom-badge">MY</span>
+                    <button
+                      className="tutor-delete-btn"
+                      onClick={handleDirectDelete}
+                    >
+                      <X size={14} />
+                    </button>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -281,6 +401,9 @@ function TutorSettings() {
             ))}
           </div>
         </section>
+
+        {/* 나만의 음성 섹션 */}
+        <VoiceRecordingSection />
       </div>
 
       {/* 저장 버튼 */}
@@ -289,6 +412,15 @@ function TutorSettings() {
           저장
         </button>
       </div>
+
+      {/* 커스텀 튜터 모달 */}
+      <CustomTutorModal
+        isOpen={showCustomTutorModal}
+        onClose={() => setShowCustomTutorModal(false)}
+        onSave={handleCustomTutorSave}
+        onDelete={handleCustomTutorDelete}
+        existingTutor={customTutor}
+      />
 
       <style>{`
         .tutor-settings-page {
@@ -476,21 +608,83 @@ function TutorSettings() {
           border-color: #111;
         }
 
+        .tutor-card.custom {
+          position: relative;
+        }
+
+        .tutor-card.create-card {
+          border: 2px dashed #ddd;
+          background: #fafafa;
+        }
+
+        .tutor-card.create-card:active {
+          background: #f0f0f0;
+        }
+
+        .create-avatar {
+          background: #f0f0f0 !important;
+          border: 2px dashed #ccc !important;
+        }
+
+        .custom-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background: #111;
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 10px;
+        }
+
+        .tutor-delete-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 24px;
+          height: 24px;
+          background: #fff;
+          border: 1px solid #eee;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #999;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          z-index: 10;
+        }
+
+        .tutor-delete-btn:active {
+          background: #fee;
+          color: #e74c3c;
+          border-color: #e74c3c;
+        }
+
         .tutor-avatar {
-          width: 56px;
-          height: 56px;
+          width: 64px;
+          height: 64px;
           background: #111;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           margin: 0 auto 12px;
+          overflow: hidden;
+          border: 2px solid #eee;
         }
 
         .tutor-avatar span {
           font-size: 24px;
           font-weight: 600;
           color: #fff;
+        }
+
+        .tutor-avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .tutor-info {

@@ -40,6 +40,16 @@ export const STORAGE_KEYS = {
   LAST_CALL_RESULT: 'lastCallResult',   // 마지막 통화 결과
   LAST_FEEDBACK: 'lastFeedback',        // 마지막 피드백
   DEVICE_ID: 'deviceId',                // 디바이스 고유 ID
+  // 학습 사이클 관련
+  LEARNING_SESSIONS: 'learningSessions',          // 학습 세션 기록
+  MORNING_QUIZ_RESULTS: 'morningQuizResults',     // 모닝 퀴즈 결과
+  REVIEW_RESULTS: 'reviewResults',                // 복습 결과
+  FEATURE_SCHEDULE: 'featureSchedule',            // 자동 스케줄 설정
+  FEATURE_EXECUTION: 'featureExecution',          // 실행 기록 (중복 방지)
+  PET_CHARACTER: 'petCharacter',                  // 펫 캐릭터 데이터
+  TODAY_PROGRESS: 'todayProgress',                // 오늘의 학습 진행률
+  DAILY_EVENTS: 'dailyEvents',                    // 오늘의 일정
+  CUSTOM_TUTOR: 'customTutor',                    // 커스텀 튜터 데이터
 }
 
 // ============================================
@@ -189,6 +199,31 @@ export const DURATIONS = [
 ]
 
 /**
+ * 대화 스타일 옵션
+ * @constant {Array<Object>}
+ */
+export const CONVERSATION_STYLES = [
+  {
+    id: 'teacher',
+    label: '선생님',
+    description: '친절하게 가르쳐주는 튜터',
+    prompt: 'You are a friendly and patient English tutor.'
+  },
+  {
+    id: 'friend',
+    label: '친구',
+    description: '편하게 대화하는 친구',
+    prompt: 'You are a close friend having a casual conversation. Use informal language and be playful.'
+  },
+  {
+    id: 'lover',
+    label: '애인',
+    description: '다정하고 따뜻한 연인',
+    prompt: 'You are a loving and caring partner. Be affectionate, use sweet nicknames occasionally, show genuine interest in their day, and be supportive and encouraging. Express warmth and care in your responses.'
+  },
+]
+
+/**
  * 대화 주제 옵션
  * @constant {Array<Object>}
  */
@@ -208,14 +243,14 @@ export const TOPICS = [
  * @constant {Array<Object>}
  */
 export const TUTORS = [
-  { id: 'gwen', name: 'Gwen', nationality: '미국', accent: 'us', gender: 'female', genderLabel: '여성', tags: ['밝은', '활기찬'] },
-  { id: 'chris', name: 'Chris', nationality: '미국', accent: 'us', gender: 'male', genderLabel: '남성', tags: ['밝은', '활기찬'] },
-  { id: 'emma', name: 'Emma', nationality: '영국', accent: 'uk', gender: 'female', genderLabel: '여성', tags: ['차분한', '친절한'] },
-  { id: 'james', name: 'James', nationality: '영국', accent: 'uk', gender: 'male', genderLabel: '남성', tags: ['차분한', '전문적'] },
-  { id: 'olivia', name: 'Olivia', nationality: '호주', accent: 'au', gender: 'female', genderLabel: '여성', tags: ['활발한', '유쾌한'] },
-  { id: 'noah', name: 'Noah', nationality: '호주', accent: 'au', gender: 'male', genderLabel: '남성', tags: ['친근한', '편안한'] },
-  { id: 'sophia', name: 'Sophia', nationality: '인도', accent: 'in', gender: 'female', genderLabel: '여성', tags: ['따뜻한', '인내심'] },
-  { id: 'liam', name: 'Liam', nationality: '인도', accent: 'in', gender: 'male', genderLabel: '남성', tags: ['논리적', '체계적'] },
+  { id: 'gwen', name: 'Gwen', nationality: '미국', accent: 'us', gender: 'female', genderLabel: '여성', tags: ['밝은', '활기찬'], image: 'https://randomuser.me/api/portraits/women/44.jpg' },
+  { id: 'chris', name: 'Chris', nationality: '미국', accent: 'us', gender: 'male', genderLabel: '남성', tags: ['밝은', '활기찬'], image: 'https://randomuser.me/api/portraits/men/32.jpg' },
+  { id: 'emma', name: 'Emma', nationality: '영국', accent: 'uk', gender: 'female', genderLabel: '여성', tags: ['차분한', '친절한'], image: 'https://randomuser.me/api/portraits/women/65.jpg' },
+  { id: 'james', name: 'James', nationality: '영국', accent: 'uk', gender: 'male', genderLabel: '남성', tags: ['차분한', '전문적'], image: 'https://randomuser.me/api/portraits/men/75.jpg' },
+  { id: 'olivia', name: 'Olivia', nationality: '호주', accent: 'au', gender: 'female', genderLabel: '여성', tags: ['활발한', '유쾌한'], image: 'https://randomuser.me/api/portraits/women/68.jpg' },
+  { id: 'noah', name: 'Noah', nationality: '호주', accent: 'au', gender: 'male', genderLabel: '남성', tags: ['친근한', '편안한'], image: 'https://randomuser.me/api/portraits/men/86.jpg' },
+  { id: 'sophia', name: 'Sophia', nationality: '인도', accent: 'in', gender: 'female', genderLabel: '여성', tags: ['따뜻한', '인내심'], image: 'https://randomuser.me/api/portraits/women/90.jpg' },
+  { id: 'liam', name: 'Liam', nationality: '인도', accent: 'in', gender: 'male', genderLabel: '남성', tags: ['논리적', '체계적'], image: 'https://randomuser.me/api/portraits/men/94.jpg' },
 ]
 
 /**
@@ -249,6 +284,7 @@ export const DEFAULT_SETTINGS = {
   speed: 'normal',
   level: 'intermediate',
   topic: 'business',
+  conversationStyle: 'teacher',
 }
 
 /**

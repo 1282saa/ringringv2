@@ -10,7 +10,7 @@ export const COGNITO_CONFIG = {
 
   // OAuth configuration
   oauth: {
-    domain: 'ringgle-ai-english.auth.us-east-1.amazoncognito.com',
+    domain: 'rngrng.auth.us-east-1.amazoncognito.com',
     scope: ['openid', 'email', 'profile'],
     responseType: 'code',
 

@@ -10,7 +10,7 @@
 |------|-------------|
 | **Project** | Ringle AI English Learning MVP |
 | **Duration** | 2026-01-12 ~ Ongoing |
-| **Total Phases** | 10 Completed |
+| **Total Phases** | 16 Completed |
 | **Platforms** | Web, iOS, Android |
 
 ---
@@ -29,6 +29,12 @@
 | 8 | Code Refactoring | 01-12 | Done | Constants centralization, deduplication |
 | 9 | UX/UI Improvements | 01-12 | Done | Subtitles, speaker toggle, accuracy calc |
 | 10 | Call Tab UI | 01-12 | Done | Call tab UI refinement |
+| 11 | Native Call Scheduling | 01-17 | Done | Android 전화 예약, Firebase 푸시 알림 |
+| 12 | Learning Cycle | 02-06 | Done | 모닝 퀴즈 → AI 수업 → 복습 전화 사이클 |
+| 13 | Voice Cloning | 02-08 | Done | ElevenLabs 음성 클로닝, 커스텀 튜터 |
+| 14 | Google Calendar | 02-08 | Done | 학습 완료 시 캘린더 자동 기록 |
+| 15 | Session Memory | 02-08 | Done | 크로스 세션 AI 메모리 (사용자 정보 기억) |
+| 16 | Claude API 비용 최적화 | 02-08 | Done | Claude 3 Haiku 사용 (최저 비용 모델) |
 
 ---
 
@@ -126,6 +132,67 @@ Call Tab UI
 └── Result: Clean call screen
 ```
 
+### Phase 11: Native Call Scheduling
+```
+Native Android Call
+├── AlarmManager + Foreground Service
+├── Full-Screen Intent (화면 꺼진 상태 대응)
+├── Firebase Cloud Messaging
+├── 10분 전 동기부여 메시지 알림
+└── Result: 실제 전화처럼 AI 튜터 전화 수신
+```
+
+### Phase 12: Learning Cycle
+```
+학습 사이클
+├── 모닝 퀴즈: 듣기 4지선다 (TTS 기반)
+├── AI 수업: 퀴즈 약점 반영 집중 학습
+├── 복습 전화: 문법 교정, 표현 바꿔말하기, 자유대화
+├── TodayProgress: 오늘의 학습 진행률 (3단계)
+├── 자동 팝업: 설정 시간에 모닝퀴즈/복습 알림
+└── Result: 완전한 학습 파이프라인
+```
+
+### Phase 13: Voice Cloning
+```
+음성 클로닝
+├── 음성 샘플 녹음 (최소 3개)
+├── ElevenLabs Voice Cloning API 연동
+├── 커스텀 튜터 생성 (이름, 성별, 음성)
+├── TTS 시 커스텀 음성 사용
+└── Result: 나만의 음성 AI 튜터
+```
+
+### Phase 14: Google Calendar Integration
+```
+구글 캘린더 연동
+├── Google OAuth 2.0 인증
+├── Google Calendar API 연동
+├── 학습 완료 시 자동 일정 추가
+├── Settings에서 연결 관리
+└── Result: 학습 기록 캘린더 동기화
+```
+
+### Phase 15: Session Memory
+```
+크로스 세션 메모리
+├── 대화 종료 시 사용자 정보 자동 추출
+├── DynamoDB에 사용자 메모리 저장
+├── 다음 대화 시 메모리 불러오기
+├── 시스템 프롬프트에 메모리 주입
+└── Result: AI가 사용자 기억 (이름, 직업, 관심사)
+```
+
+### Phase 16: Claude API 비용 최적화
+```
+Claude 3 Haiku 사용
+├── AWS Bedrock 통합
+├── Claude 3 Haiku (최저 비용 모델)
+├── Input: $0.25/1M, Output: $1.25/1M
+├── Opus 대비 60배 저렴
+└── Result: 비용 효율적인 AI 대화
+```
+
 ---
 
 ## Tech Stack
@@ -187,11 +254,11 @@ aws cloudfront create-invalidation --distribution-id E2EPS9DBLFD0FM --paths "/*"
 
 | Phase | Title | Description | Priority |
 |:-----:|-------|-------------|:--------:|
-| 11 | Progress Tracking | Track learning progress over sessions | High |
-| 12 | Lesson Plans | Structured learning paths | Medium |
-| 13 | Mobile Deployment | App Store / Play Store release | High |
-| 14 | Analytics | Usage and performance metrics | Medium |
-| 15 | Component Extraction | Common component separation | Low |
+| 17 | iOS Call Scheduling | iOS CallKit 연동 | High |
+| 18 | App Store / Play Store | 스토어 배포 | High |
+| 19 | Analytics Dashboard | 사용량 및 성능 모니터링 | Medium |
+| 20 | Hybrid AI Model | Haiku/Opus 하이브리드 비용 최적화 | Medium |
+| 21 | Memory Management UI | Settings에서 메모리 조회/삭제 | Low |
 
 ---
 
@@ -233,4 +300,4 @@ eng-learning/
 
 ---
 
-*Last Updated: 2026-01-13*
+*Last Updated: 2026-02-08*

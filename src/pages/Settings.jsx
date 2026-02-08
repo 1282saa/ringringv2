@@ -9,12 +9,14 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, X, Check, Flame, User, LogOut, Crown } from 'lucide-react'
+import { ChevronRight, X, Check, Flame, User, LogOut, Crown, PawPrint, Camera } from 'lucide-react'
 import { getFromStorage, setToStorage } from '../utils/helpers'
 import { haptic } from '../utils/capacitor'
-import { TUTORS } from '../constants'
+import { TUTORS, CONVERSATION_STYLES, STORAGE_KEYS } from '../constants'
 import { useAuth } from '../auth'
 import { useUsage } from '../context'
+import { VoiceRecordingSection, GoogleCalendarSection, PetUploadModal } from '../components'
+import { getPet } from '../utils/api'
 
 function Settings() {
   const navigate = useNavigate()
@@ -37,6 +39,13 @@ function Settings() {
   const [scheduleCount, setScheduleCount] = useState(0)
   const [tutorName, setTutorName] = useState('Gwen')
   const [topicCount, setTopicCount] = useState(0)
+  const [conversationStyle, setConversationStyle] = useState('teacher')
+  const [showStyleModal, setShowStyleModal] = useState(false)
+
+  // 반려동물 상태
+  const [petData, setPetData] = useState(null)
+  const [showPetModal, setShowPetModal] = useState(false)
+  const [usePetAsProfile, setUsePetAsProfile] = useState(() => getFromStorage('usePetAsProfile', false))
 
   // 토스트 표시 함수
   const displayToast = (message) => {
@@ -71,7 +80,62 @@ function Settings() {
     // 커리큘럼 카운트
     const curriculum = getFromStorage('selectedCurriculum', [])
     setTopicCount(curriculum.length)
+
+    // 대화 스타일
+    const savedStyle = getFromStorage('conversationStyle', 'teacher')
+    setConversationStyle(savedStyle)
+
+    // 반려동물 정보 로드
+    loadPetData()
   }, [])
+
+  // 반려동물 정보 로드
+  const loadPetData = async () => {
+    try {
+      const response = await getPet()
+      console.log('[Settings] getPet response:', response)
+      if (response.success && response.pet) {
+        setPetData({
+          image: response.pet.imageUrl,
+          name: response.pet.name
+        })
+        console.log('[Settings] Pet loaded from server:', response.pet.imageUrl)
+      } else {
+        // 로컬 스토리지 폴백
+        const localPet = getFromStorage(STORAGE_KEYS.PET_CHARACTER, null)
+        console.log('[Settings] Using local pet:', localPet)
+        if (localPet) {
+          setPetData(localPet)
+        }
+      }
+    } catch (err) {
+      console.error('[Settings] getPet error:', err)
+      // 로컬 스토리지 폴백
+      const localPet = getFromStorage(STORAGE_KEYS.PET_CHARACTER, null)
+      if (localPet) {
+        setPetData(localPet)
+      }
+    }
+  }
+
+  // 반려동물 저장 완료 핸들러
+  const handlePetSave = (pet) => {
+    setPetData(pet)
+    displayToast('반려동물이 등록되었습니다')
+  }
+
+  // 펫을 프로필로 사용 토글
+  const handlePetProfileToggle = () => {
+    if (!petData?.image) {
+      displayToast('먼저 반려동물을 등록해주세요')
+      return
+    }
+    haptic.selection()
+    const newValue = !usePetAsProfile
+    setUsePetAsProfile(newValue)
+    setToStorage('usePetAsProfile', newValue)
+    displayToast(newValue ? '프로필이 변경되었습니다 🐾' : '기본 프로필로 변경되었습니다')
+  }
 
   // 이름 저장
   const handleSaveName = () => {
@@ -82,6 +146,22 @@ function Settings() {
       displayToast('이름이 저장되었습니다')
     }
     setShowNameModal(false)
+  }
+
+  // 대화 스타일 선택 핸들러
+  const handleStyleSelect = (styleId) => {
+    haptic.success()
+    setConversationStyle(styleId)
+    setToStorage('conversationStyle', styleId)
+    const style = CONVERSATION_STYLES.find(s => s.id === styleId)
+    displayToast(`${style?.label || '선생님'} 스타일로 변경됐습니다`)
+    setShowStyleModal(false)
+  }
+
+  // 현재 스타일 라벨 가져오기
+  const getCurrentStyleLabel = () => {
+    const style = CONVERSATION_STYLES.find(s => s.id === conversationStyle)
+    return style?.label || '선생님'
   }
 
   // 토글 핸들러
@@ -126,7 +206,9 @@ function Settings() {
               className="profile-btn"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
-              {user?.attributes?.picture ? (
+              {usePetAsProfile && petData?.image ? (
+                <img src={petData.image} alt={petData.name || ''} className="profile-img" />
+              ) : user?.attributes?.picture ? (
                 <img src={user.attributes.picture} alt="" className="profile-img" />
               ) : (
                 <User size={20} color="#666" />
@@ -165,9 +247,15 @@ function Settings() {
         </button>
         <button
           className="tab-item"
+          onClick={() => handleNav(() => navigate('/', { state: { activeTab: 'schedule' } }))}
+        >
+          스케줄
+        </button>
+        <button
+          className="tab-item"
           onClick={() => handleNav(() => navigate('/', { state: { activeTab: 'history' } }))}
         >
-          전화내역
+          내역
         </button>
       </nav>
 
@@ -225,6 +313,16 @@ function Settings() {
                 <ChevronRight size={20} color="#c0c0c0" />
               </div>
             </div>
+            <div
+              className="settings-item"
+              onClick={() => handleNav(() => setShowStyleModal(true))}
+            >
+              <span className="item-label">대화 스타일</span>
+              <div className="item-right">
+                <span className="item-value">{getCurrentStyleLabel()}</span>
+                <ChevronRight size={20} color="#c0c0c0" />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -256,6 +354,59 @@ function Settings() {
               <span className="item-label">화상 수업 리뷰</span>
               <div className="toggle-switch" onClick={handleVideoReviewToggle}>
                 <div className={`toggle-track ${videoReviewAlert ? 'active' : ''}`}>
+                  <div className="toggle-thumb" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 나만의 음성 섹션 */}
+        <VoiceRecordingSection />
+
+        {/* 구글 캘린더 연동 섹션 */}
+        <GoogleCalendarSection />
+
+        {/* 반려동물 섹션 */}
+        <section className="settings-section">
+          <h2 className="section-label">반려동물</h2>
+          <div className="settings-list">
+            <div
+              className="pet-character-card"
+              onClick={() => {
+                haptic.light()
+                setShowPetModal(true)
+              }}
+            >
+              {petData?.image ? (
+                <>
+                  <div className="pet-preview-circle">
+                    <img src={petData.image} alt={petData.name || '반려동물'} />
+                  </div>
+                  <div className="pet-info">
+                    <span className="pet-name">{petData.name || '나의 반려동물'}</span>
+                    <span className="pet-hint">학습 알림에 함께 등장해요</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="pet-placeholder-circle">
+                    <PawPrint size={28} color="#999" />
+                  </div>
+                  <div className="pet-info">
+                    <span className="pet-name">반려동물 등록하기</span>
+                    <span className="pet-hint">학습 알림이 더 즐거워져요</span>
+                  </div>
+                </>
+              )}
+              <ChevronRight size={20} color="#c0c0c0" />
+            </div>
+
+            {/* 프로필 사진으로 사용 토글 */}
+            <div className="settings-item">
+              <span className="item-label">프로필 사진으로 사용</span>
+              <div className="toggle-switch" onClick={handlePetProfileToggle}>
+                <div className={`toggle-track ${usePetAsProfile && petData?.image ? 'active' : ''}`}>
                   <div className="toggle-thumb" />
                 </div>
               </div>
@@ -295,6 +446,45 @@ function Settings() {
             <button className="primary-btn" onClick={handleSaveName}>
               저장
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 반려동물 등록 모달 */}
+      <PetUploadModal
+        isOpen={showPetModal}
+        onClose={() => setShowPetModal(false)}
+        onSave={handlePetSave}
+      />
+
+      {/* 대화 스타일 선택 모달 */}
+      {showStyleModal && (
+        <div className="modal-overlay" onClick={() => setShowStyleModal(false)}>
+          <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>대화 스타일</h3>
+              <button className="modal-close" onClick={() => setShowStyleModal(false)}>
+                <X size={24} color="#888" />
+              </button>
+            </div>
+            <p className="modal-desc">AI 튜터와 어떤 분위기로 대화할까요?</p>
+            <div className="style-options">
+              {CONVERSATION_STYLES.map(style => (
+                <button
+                  key={style.id}
+                  className={`style-option ${conversationStyle === style.id ? 'selected' : ''}`}
+                  onClick={() => handleStyleSelect(style.id)}
+                >
+                  <div className="style-option-content">
+                    <span className="style-label">{style.label}</span>
+                    <span className="style-desc">{style.description}</span>
+                  </div>
+                  {conversationStyle === style.id && (
+                    <Check size={20} color="#111" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -671,6 +861,114 @@ function Settings() {
 
         .primary-btn:active {
           background: #333;
+        }
+
+        /* 대화 스타일 옵션 */
+        .style-options {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .style-option {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px;
+          background: #fafafa;
+          border-radius: 12px;
+          border: 1.5px solid transparent;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          text-align: left;
+        }
+
+        .style-option:active {
+          transform: scale(0.98);
+        }
+
+        .style-option.selected {
+          background: #fff;
+          border-color: #111;
+        }
+
+        .style-option-content {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .style-label {
+          font-size: 15px;
+          font-weight: 600;
+          color: #111;
+        }
+
+        .style-desc {
+          font-size: 13px;
+          color: #888;
+        }
+
+        /* 반려동물 카드 */
+        .pet-character-card {
+          display: flex;
+          align-items: center;
+          padding: 16px 18px;
+          background: #fff;
+          border-radius: 14px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          gap: 14px;
+        }
+
+        .pet-character-card:active {
+          background: #f5f5f5;
+          transform: scale(0.99);
+        }
+
+        .pet-preview-circle {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          overflow: hidden;
+          flex-shrink: 0;
+          background: #f5f5f5;
+        }
+
+        .pet-preview-circle img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .pet-placeholder-circle {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: #f5f5f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          border: 2px dashed #ddd;
+        }
+
+        .pet-info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .pet-name {
+          font-size: 15px;
+          font-weight: 600;
+          color: #222;
+        }
+
+        .pet-hint {
+          font-size: 13px;
+          color: #888;
         }
 
       `}</style>

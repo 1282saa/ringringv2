@@ -94,6 +94,7 @@ export function setToStorage(key, value) {
 /**
  * 튜터 설정을 로컬스토리지에서 로드
  * 저장된 값이 없으면 기본값 반환
+ * 대화 스타일도 함께 포함
  *
  * @returns {Object} 튜터 설정 객체
  *
@@ -102,7 +103,13 @@ export function setToStorage(key, value) {
  * console.log(settings.accent) // 'us'
  */
 export function getTutorSettings() {
-  return getFromStorage(STORAGE_KEYS.TUTOR_SETTINGS, DEFAULT_SETTINGS)
+  const settings = getFromStorage(STORAGE_KEYS.TUTOR_SETTINGS, DEFAULT_SETTINGS)
+  // 대화 스타일도 함께 포함 (별도 저장된 경우 병합)
+  const conversationStyle = getFromStorage('conversationStyle', DEFAULT_SETTINGS.conversationStyle || 'teacher')
+  return {
+    ...settings,
+    conversationStyle,
+  }
 }
 
 /**
